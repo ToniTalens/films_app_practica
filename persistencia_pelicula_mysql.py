@@ -47,17 +47,34 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         return resultat
     
     def totes_pag(self, id=None) -> List[Pelicula]:
-        pass
-        #falta codi
+        i=True
+        f=1
+        while(i):
+            while(f<id)
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
+        sql = f"INSERT INTO PELICULA VALUES '{pelicula.titol}',{pelicula.any},{pelicula.puntuacio},{pelicula.vots}"
+        cursor = self._conn.cursor(buffered=True)
+        cursor.execute(sql)
+        self._conn.commit()
+        peliculaDes = cursor.fetchall()
+        cursor.close()
+        return peliculaDes
     
     def llegeix(self, any: int) -> Pelicula:
-        pass
-        #falta codi
-    
+        sql=f"SELECT * FROM PELICULA WHERE anyo={any}"
+        cursor = self._conn.cursor(buffered=True)
+        cursor.execute(sql)
+        self._conn.commit()
+        peliculaSel = cursor.fetchall()
+        cursor.close()
+        return peliculaSel
+
     def canvia(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
+        sql = f"UPDATE PELICULA SET titulo = '{pelicula.titol}',anyo = {pelicula.any},puntuacion = {pelicula.puntuacio}, votos = {pelicula.vots} WHERE id={pelicula.id}"
+        cursor = self._conn.cursor(buffered=True)
+        cursor.execute(sql)
+        self._conn.commit()
+        peliculaCan = cursor.fetchall()
+        cursor.close()
+        return peliculaCan
