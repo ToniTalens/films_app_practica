@@ -65,6 +65,9 @@ def mostra_seguents(llistapelicula):
 def mostra_menu():
     print("0.- Surt de l'aplicació.")
     print("1.- Mostra les primeres 10 pel·lícules")
+    print("2.- Cerca pelicules per l'any")
+    print("3.- Insereix una nova pel·licula")
+    print("4.- Modificar una pel·licula existent")
 
 
 def mostra_menu_next10():
@@ -80,12 +83,12 @@ def procesa_opcio(context):
 
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = #falta codi
-    persistencies = #falta codi
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
-        persistencia_pelicula=
+        persistencia_pelicula=persistencies
     )
-    films. #falta codi
+    films.llegeix_de_disc(id)
     return films
 
 def bucle_principal(context):
@@ -103,7 +106,8 @@ def bucle_principal(context):
             context["llistapelis"] = films
 
         elif context["opcio"] == '2':
-            pass
+            any = int(input("Escriu un any"))
+            films = da
             #falta codi
         procesa_opcio(context)
 
