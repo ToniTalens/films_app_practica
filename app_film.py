@@ -80,7 +80,7 @@ def procesa_opcio(context):
 
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = #falta codi
+    la_meva_configuracio = Persistencia_pelicula_mysql(llegeix=2023)
     persistencies = #falta codi
     films = Llistapelis(
         persistencia_pelicula=
