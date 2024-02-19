@@ -47,12 +47,41 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         return resultat
     
     def totes_pag(self, id=None) -> List[Pelicula]:
-        pass
+        cursor = self._conn.cursor(buffered=True)
+        query = "SELECT * FROM PELICULA WHERE id => :{id} ORDER BY id LIMIT 10;"
+         
+        cursor.execute(query)
+        registres = cursor.fetchall()
+        cursor.reset()
+        resultat = []
+        for registre in registres:
+            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+            resultat.append(pelicula)
+        return resultat
+        
+      
         #falta codi
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
+        cursor = self._conn.cursor(buffered=True)
+        query = """INSERT INTO PELICULA(titulo, anyo, puntuacion, votos) VALUES 
+        ({pelicula._titol},{pelicula._any},{pelicula._puntuacio},{pelicula._vots})"""
+
+        cursor.execute(query)
+
+        self._conn.commit()
+        pelicula._id=cursor.lastrowid
+
+        
+
+        
+
+        cursor.close()
+        return pelicula
+        
+        
+
+
     
     def llegeix(self, any: int) -> Pelicula:
         pass
@@ -61,3 +90,24 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     def canvia(self,pelicula:Pelicula) -> Pelicula:
         pass
         #falta codi
+
+if __name__ =='__main__':
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    credencials = {
+
+         "host":"localhost"
+        ,"user":"dam_app",
+        "password":"1234"
+        ,"database":"Pelis"
+
+
+    }
+
+    pers_films=Persistencia_pelicula_mysql(credencials)
+
+
+    p = Pelicula("hola","1200","2","45454")
+
+       
+    
+    print(desa(p)) 
