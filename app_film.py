@@ -80,12 +80,12 @@ def procesa_opcio(context):
 
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = #falta codi
-    persistencies = #falta codi
+    la_meva_configuracio = get_configuracio("configuracio.yml")
+    persistencies = la_meva_configuracio["motor"]
     films = Llistapelis(
-        persistencia_pelicula=
+        persistencia_pelicula = persistencies
     )
-    films. #falta codi
+    films.llegeix_de_disc(id)
     return films
 
 def bucle_principal(context):
