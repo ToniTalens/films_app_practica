@@ -36,6 +36,6 @@ class Llistapelis():
         return json.dumps(self_dict)
 
     def llegeix_de_disc(self,id:int):
-        self._pelicules = #falta codi
-        self._ult_id = #falta codi
-
+        pass
+        # self._pelicules = 
+        # self._ult_id = 
