@@ -39,3 +39,10 @@ class Llistapelis():
         self._pelicules = #falta codi
         self._ult_id = #falta codi
 
+#    def existeix(self, input6):
+#        cursor = self._conn.cursor(buffered=True)
+#        query = "SELECT id, titulo, anyo, puntuacion, votos from PELICULA WHERE titulo = '%s';"
+#        cursor.execute(query, input6)
+#        myresult = cursor.fetchall()
+#        return myresult
+
