@@ -50,14 +50,30 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         pass
         #falta codi
     
-    def desa(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
+    def desa(self, pelicula: Pelicula) -> Pelicula:
+        cursor = self._conn.cursor(buffered=True)
+        query = "INSERT INTO PELICULA (titulo, anyo, puntuacion, votos) VALUES (%s, %s, %s, %s);"
+        dades = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
+        cursor.execute(query, dades)
+        self._conn.commit()
+        return pelicula
     
-    def llegeix(self, any: int) -> Pelicula:
-        pass
-        #falta codi
+    def llegeix(self, any: int) -> List[Pelicula]:
+        cursor = self._conn.cursor(buffered=True)
+        query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA WHERE anyo = %s;"
+        dades = (any,)
+        cursor.execute(query, dades)
+        registres = cursor.fetchall()
+        pelicules_any = []
+        for registre in registres:
+            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+            pelicules_any.append(pelicula)
+        return pelicules_any
     
-    def canvia(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
+    def canvia(self, pelicula: Pelicula) -> Pelicula:
+        cursor = self._conn.cursor(buffered=True)
+        query = "UPDATE PELICULA SET titulo = %s, anyo = %s, puntuacion = %s, votos = %s WHERE id = %s;"
+        dades = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots, pelicula.id)
+        cursor.execute(query, dades)
+        self._conn.commit()
+        return pelicula
