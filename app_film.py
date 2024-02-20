@@ -72,13 +72,14 @@ def mostra_menu():
 
 def mostra_menu_next10():
     print("0.- Surt de l'aplicació.")
-    print("2.- Mostra les següents 10 pel·lícules")
+    print("1.- Mostra les següents 10 pel·lícules")
 
 
 def procesa_opcio(context):
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
-        "1": lambda ctx : mostra_llista(ctx['llistapelis'])
+        "1": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "2": lambda ctx : mostra_llista(ctx['llistapelisany'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
 def database_read(id:int):
@@ -91,39 +92,85 @@ def database_read(id:int):
     films.llegeix_de_disc(id)
     return films
 
+def database_readall(id:int):
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)["pelicula"]
+    films = Llistapelis(
+        persistencia_pelicula=persistencies
+    )
+    films.llegeix_de_disc(id)
+    return films
+
+#Metode que retorna films
+def database_persistencia(id:int):
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)["pelicula"]
+    films = Llistapelis(
+        persistencia_pelicula=persistencies
+    )
+    return films
+
 def bucle_principal(context):
     opcio = None
-    mostra_menu()
 
     while opcio != '0':
+        mostra_menu()
         opcio = input("Selecciona una opció: ")
         context["opcio"] = opcio
         
         if context["opcio"] == '1':
-            id = None
+            id = 1
             films = database_read(id)
             context["llistapelis"] = films
+            procesa_opcio(context)
+            
+            mostra_menu_next10()
+            opcio = input("Selecciona una opció: ")
+            context["opcio"] = opcio
+
+            while context["opcio"] != '0':
+                procesa_opcio(context)
+                films = database_read(id)
+                context["llistapelis"] = films
+
+                mostra_menu_next10()
+                opcio = input("Selecciona una opció: ")
+                context["opcio"] = opcio
 
         elif context["opcio"] == '2':
             any = int(input("Escriu un any: "))
             id = None
-            films = database_read(id)
-            films.bany(any)
+            films = database_persistencia(id)
+            films.llegeixPerAny(any)
             context["llistapelisany"] = films
 
-
         elif context["opcio"] == '3':
-            titol = input("Insereix el titol de la pel·licula") 
-            any = int(input("Insereix l'any de la pel·licula"))
-            puntuacio = float(input("Insereix la puntuacio de la pel·licula"))
-            vots = int(input("Insereix el numero de vots de la pel·licula"))
+            titol = input("Insereix el titol de la pel·licula: ")
+            any = int(input("Insereix l'any de la pel·licula: "))
+            puntuacio = float(input("Insereix la puntuacio de la pel·licula: "))
+            vots = int(input("Insereix el numero de vots de la pel·licula: "))
+            id = None
+            films = database_persistencia(id)
+            films.desa(titol, any, puntuacio, vots)
+            context["opcio"] = opcio
+            continue
             
         elif context["opcio"] == '4':
-            any = int(input("Escriu un any"))
-           
+            id = int(input("Insereix el id de la pel·licula que vols modificar: "))
+            titol = input("Insereix el titol de la pel·licula: ")
+            any = int(input("Insereix l'any de la pel·licula: "))
+            puntuacio = float(input("Insereix la puntuacio de la pel·licula: "))
+            vots = int(input("Insereix el numero de vots de la pel·licula: "))
+            films = database_persistencia(id)
+            films.canvia(id, titol, any, puntuacio, vots)
+            context["opcio"] = opcio
+            continue
+        
         procesa_opcio(context)
 
-        #falta codi
+        
 
 
 def main():

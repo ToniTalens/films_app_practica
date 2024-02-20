@@ -46,9 +46,16 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
-    def totes_pag(self, id=None) -> List[Pelicula]:
-        pass
-        #falta codi
+    def totes_pag(self, id) -> List[Pelicula]:
+        cursor = self._conn.cursor(buffered=True)
+        sql = f"SELECT * FROM PELICULA WHERE ID BETWEEN ({id} + 9) AND {id}"
+        cursor.execute(sql)
+        registres = cursor.fetchall()
+        resultat = []
+        for registre in registres:
+            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+            resultat.append(pelicula)
+        return resultat
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
         cursor = self._conn.cursor(buffered=True)
@@ -59,17 +66,22 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         print("PELICULA INSERTADA")
         return pelicula
     
-    
-    def llegeix(self, any: int) -> Pelicula:
+    def llegeix(self, any: int) ->  List[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
         cursor.execute(f"SELECT * FROM PELICULA WHERE ANYO = {any}")
-        resultats = cursor.fetchall()
-        for resultat in resultats:
-            print(resultat)
+        registres = cursor.fetchall()
+        resultat = []
+        for registre in registres:
+            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+            resultat.append(pelicula)
+        return resultat
         
     
     def canvia(self,pelicula:Pelicula) -> Pelicula:
         cursor = self._conn.cursor(buffered=True)
-        cursor.execute(f"UPDATE PELICULA SET TITULO = {pelicula.titol}, PUNTUACION = {pelicula.puntuacio}, VOTOS = {pelicula.vots} WHERE ID = '{pelicula.id}'")
+        cursor.execute(f"""UPDATE PELICULA
+                       SET TITULO = '{pelicula.titol}', ANYO = {pelicula.any}, PUNTUACION = {pelicula.puntuacio}, VOTOS = {pelicula.vots}
+                       WHERE ID = {pelicula.id}""")
         self._conn.commit()
+        print(f"S'HA ACTUALITZAT LA PELICULA {pelicula.id}")
         return pelicula
