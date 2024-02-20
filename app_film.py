@@ -80,12 +80,12 @@ def procesa_opcio(context):
 
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = #falta codi
-    persistencies = #falta codi
+    la_meva_configuracio = get_configuracio()
+    persistencies = get_persistencies()
     films = Llistapelis(
         persistencia_pelicula=
     )
-    films. #falta codi
+    films.llegeix_de_disc
     return films
 
 def bucle_principal(context):
@@ -105,6 +105,10 @@ def bucle_principal(context):
         elif context["opcio"] == '2':
             pass
             #falta codi
+            id_new = id + 1
+            films = database_read(id)
+            context["llistapelis"] = films
+
         procesa_opcio(context)
 
         #falta codi
