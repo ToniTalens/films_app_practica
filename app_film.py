@@ -90,7 +90,6 @@ def database_read(id:int):
 
 def bucle_principal(context):
     opcio = None
-    
     mostra_menu()
 
     while opcio != '0':
@@ -103,11 +102,26 @@ def bucle_principal(context):
             context["llistapelis"] = films
 
         elif context["opcio"] == '2':
-            pass
-            #falta codi
+            if context["llistapelis"]:
+                id = context["llistapelis"].ult_id + 1
+                films = database_read(id)
+                context["llistapelis"].pelicules += films.pelicules
+
         procesa_opcio(context)
 
-        #falta codi
+def mostra_menu():
+    print("0.- Surt de l'aplicació.")
+    print("1.- Mostra les primeres 10 pel·lícules")
+    print("2.- Mostra les següents 10 pel·lícules")
+    # Altres opcions de menú
+
+def procesa_opcio(context):
+    return {
+        "0": lambda ctx: mostra_lent("Fins la propera"),
+        "1": lambda ctx: mostra_llista(ctx['llistapelis']),
+        # Altres opcions de menú
+    }.get(context["opcio"], lambda ctx: mostra_lent("opció incorrecta!!!"))(context)
+
 
 
 def main():
