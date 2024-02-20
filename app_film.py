@@ -20,7 +20,7 @@ def get_persistencies(conf: dict) -> dict:
     if conf["base de dades"]["motor"].lower().strip() == "mysql":
         credencials['host'] = conf["base de dades"]["host"]
         credencials['user'] = conf["base de dades"]["user"]
-        credencials['password'] = conf["base de dades"]["password"]
+        credencials['password'] = str(conf["base de dades"]["password"])
         credencials['database'] = conf["base de dades"]["database"]
         return {
             'pelicula': Persistencia_pelicula_mysql(credencials)
@@ -84,7 +84,7 @@ def procesa_opcio(context):
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
-    persistencies = get_persistencies(la_meva_configuracio)
+    persistencies = get_persistencies(la_meva_configuracio)["pelicula"]
     films = Llistapelis(
         persistencia_pelicula=persistencies
     )
@@ -93,7 +93,6 @@ def database_read(id:int):
 
 def bucle_principal(context):
     opcio = None
-    
     mostra_menu()
 
     while opcio != '0':
@@ -106,9 +105,22 @@ def bucle_principal(context):
             context["llistapelis"] = films
 
         elif context["opcio"] == '2':
+            any = int(input("Escriu un any: "))
+            id = None
+            films = database_read(id)
+            films.bany(any)
+            context["llistapelisany"] = films
+
+
+        elif context["opcio"] == '3':
+            titol = input("Insereix el titol de la pel·licula") 
+            any = int(input("Insereix l'any de la pel·licula"))
+            puntuacio = float(input("Insereix la puntuacio de la pel·licula"))
+            vots = int(input("Insereix el numero de vots de la pel·licula"))
+            
+        elif context["opcio"] == '4':
             any = int(input("Escriu un any"))
-            films = da
-            #falta codi
+           
         procesa_opcio(context)
 
         #falta codi
@@ -120,6 +132,8 @@ def main():
     }
     landing_text()
     bucle_principal(context)
+
+    (get_configuracio(RUTA_FITXER_CONFIGURACIO))
 
 
 if __name__ == "__main__":

@@ -10,11 +10,11 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     def __init__(self, credencials) -> None:
         self._credencials = credencials
         self._conn = mysql.connector.connect(
-                host=credencials["host"],
-                user=credencials["user"],
-                password=credencials["password"],
-                database=credencials["database"]
-                )
+            host=credencials["host"],
+            user=credencials["user"],
+            password=credencials["password"],
+            database=credencials["database"]
+        )
         if not self.check_table():
             self.create_table()
 
@@ -57,6 +57,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         cursor.execute(sql, val)
         self._conn.commit()
         print("PELICULA INSERTADA")
+        return pelicula
     
     
     def llegeix(self, any: int) -> Pelicula:
@@ -71,3 +72,4 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         cursor = self._conn.cursor(buffered=True)
         cursor.execute(f"UPDATE PELICULA SET TITULO = {pelicula.titol}, PUNTUACION = {pelicula.puntuacio}, VOTOS = {pelicula.vots} WHERE ID = '{pelicula.id}'")
         self._conn.commit()
+        return pelicula
