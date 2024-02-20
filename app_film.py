@@ -80,7 +80,7 @@ def procesa_opcio(context):
 
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    la_meva_configuracio = get_configuracio(--)
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
         persistencia_pelicula=persistencies['pelicula']
