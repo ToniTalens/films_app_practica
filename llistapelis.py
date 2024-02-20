@@ -39,3 +39,6 @@ class Llistapelis():
         self._pelicules = #falta codi
         self._ult_id = #falta codi
 
+    #def addtotbl(self,)
+    #    and more methods like this
+

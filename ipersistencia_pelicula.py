@@ -20,5 +20,5 @@ class IPersistencia_pelicula(ABC):
         pass
 
     @abstractclassmethod
-    def llegeix(self, any: int) -> Pelicula:
+    def llegeix(self, any: int) -> List[Pelicula]:
         pass
