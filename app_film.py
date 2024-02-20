@@ -87,6 +87,7 @@ def database_read(id:int):
     )
     films.llegeix_de_disc
     return films
+    #falta codi
 
 def bucle_principal(context):
     opcio = None

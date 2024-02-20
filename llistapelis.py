@@ -39,4 +39,4 @@ class Llistapelis():
     def llegeix_de_disc(self,id:int):
         self._pelicules = self.pelicules
         self._ult_id = id
-        
+        Persistencia_pelicula_mysql.totes_pag(self._pelicules, self._ult_id)
