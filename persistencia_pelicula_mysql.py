@@ -47,10 +47,13 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         return resultat
     
     def totes_pag(self, id=None) -> List[Pelicula]:
+        cursor = self._conn.cursor(buffered=True)
         if id is None:
             query = "SELECT * FROM PELICULA LIMIT 10;"
+            cursor.execute(query)
         else:
             query = "SELECT * FROM PELICULA  "
+            cursor.execute(query)
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
         cursor = self._conn.cursor(buffered=True)
