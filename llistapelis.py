@@ -11,6 +11,11 @@ class Llistapelis():
         self._ult_id = 0
         self._persistencia_pelicula = persistencia_pelicula
         
+    def llegeix_de_disc(self, id: int):
+        self._pelicules = self._persistencia_pelicula.totes_pag(id)
+        self._ult_id = max(pelicula.id for pelicula in self._pelicules) if self._pelicules else 0
+
+        
     @property
     def pelicules(self) -> List[Pelicula]:
         return self._pelicules

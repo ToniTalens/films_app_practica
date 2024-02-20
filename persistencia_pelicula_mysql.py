@@ -49,10 +49,10 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
 def totes_pag(self, id=None) -> List[Pelicula]:
     cursor = self._conn.cursor(buffered=True)
     if id is None:
-        query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA;"
+        query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA ORDER BY id LIMIT 10;"
         cursor.execute(query)
     else:
-        query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA WHERE id > %s;"
+        query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA WHERE id > %s ORDER BY id LIMIT 10;"
         cursor.execute(query, (id,))
     registres = cursor.fetchall()
     cursor.reset()
