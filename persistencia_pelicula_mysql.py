@@ -55,7 +55,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         cursor.reset()
         resultat = []
         for registre in registres:
-            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],registre[0])
             resultat.append(pelicula)
         return resultat
         
@@ -65,9 +65,11 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     def desa(self,pelicula:Pelicula) -> Pelicula:
         cursor = self._conn.cursor(buffered=True)
         query = """INSERT INTO PELICULA(titulo, anyo, puntuacion, votos) VALUES 
-        ({pelicula._titol},{pelicula._any},{pelicula._puntuacio},{pelicula._vots})"""
+        (%s,%s,%s,%s)"""
 
-        cursor.execute(query)
+        val = (f'{pelicula._titol}',f'{pelicula._any}',f'{pelicula._puntuacio}',f'{pelicula._vots}')
+
+        cursor.execute(query,val)
 
         self._conn.commit()
         pelicula._id=cursor.lastrowid
@@ -83,12 +85,43 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
 
 
     
-    def llegeix(self, any: int) -> Pelicula:
-        pass
-        #falta codi
+    def llegeix(self, any: int) -> List[Pelicula]:
+
+        cursor = self._conn.cursor(buffered=True)
+        query = f"SELECT * FROM PELICULA WHERE anyo = '{any}'"
+         
+        cursor.execute(query)
+        pelis = cursor.fetchall()
+        cursor.close()
+        resultat = []
+        return pelis
+
+
     
     def canvia(self,pelicula:Pelicula) -> Pelicula:
-        pass
+        cursor = self._conn.cursor(buffered=True)
+        query = """UPDATE PELICULA set titulo = %s, anyo=%s, 
+        puntuacion=%s, votos=%s WHERE id = %s
+        """
+
+
+        val = (f'{pelicula._titol}',f'{pelicula._any}',f'{pelicula._puntuacio}',f'{pelicula._vots}',f'{pelicula._id}')
+
+
+
+        
+        cursor.execute(query,val)
+
+        self._conn.commit()
+
+        cursor.close()
+
+        return pelicula
+
+        
+
+
+        
         #falta codi
 
 if __name__ =='__main__':
@@ -106,8 +139,14 @@ if __name__ =='__main__':
     pers_films=Persistencia_pelicula_mysql(credencials)
 
 
-    p = Pelicula("hola","1200","2","45454")
+    p = Pelicula("hola",1990,2.9,34335,pers_films)
+
+
 
        
     
-    print(desa(p)) 
+    #print(pers_films.desa(p)) 
+    #nueva_peli = Pelicula("Taylor Swift",2023,10,32324242,pers_films, 2)
+    #print(pers_films.canvia(nueva_peli))
+
+    print(pers_films.llegeix(1982))
