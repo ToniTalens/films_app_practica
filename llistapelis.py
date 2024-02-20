@@ -37,5 +37,5 @@ class Llistapelis():
 
     def llegeix_de_disc(self,id:int):
         self._pelicules = #falta codi
-        self._ult_id = #falta codi
+        self._ult_id = ##falta codi
 

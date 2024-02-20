@@ -60,4 +60,4 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     
     def canvia(self,pelicula:Pelicula) -> Pelicula:
         pass
-        #falta codi
+        ##falta codi
