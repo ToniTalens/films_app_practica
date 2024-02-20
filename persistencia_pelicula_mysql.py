@@ -46,10 +46,13 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
-    def totes_pag(self, id=None) -> List[Pelicula]:
-        pass
-        #falta codi
-    
+    def totes_pag(self, id=0) -> List[Pelicula]:
+        cursor = self._conn.cursor(buffered=True)
+        query = f"SELECT * FROM PELICULA {'WHERE id > %s' if id > 0 else ''} ORDER BY id LIMIT 10;"
+        cursor.execute(query, (id,))
+        resultat = [Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0]) for registre in cursor.fetchall()]
+        return resultat
+                                                                          
     def desa(self, pelicula: Pelicula) -> Pelicula:
         cursor = self._conn.cursor(buffered=True)
         query = "INSERT INTO PELICULA (titulo, anyo, puntuacion, votos) VALUES (%s, %s, %s, %s);"
