@@ -29,14 +29,14 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     
     def count(self) -> int:
         cursor = self._conn.cursor(buffered=True)
-        query = "select id, titulo, anyo, puntuacion, votos from PELICULA;"
+        query = "SELECT ID , TITULO , ANYO , PUNTUACION , VOTOS FROM PELICULA;"
         cursor.execute(query)
         count = cursor.rowcount
         return count
     
     def totes(self) -> List[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
-        query = "select id, titulo, anyo, puntuacion, votos from PELICULA;"
+        query = "SELECT ID , TITULO , ANYO , PUNTUACION , VOTOS FROM PELICULA;"
         cursor.execute(query)
         registres = cursor.fetchall()
         cursor.reset()
@@ -51,8 +51,17 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         #falta codi
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
+        cursor = self._conn.cursor(buffered=True)
+        query_insert = """ INSERT INTO PELICULA (TITULO , ANYO , PUNTUACION , VOTOS)
+                           VALUES (%s , %s , %s ,%s);"""
+        data = (pelicula._titol , pelicula._any , pelicula._puntuacio, pelicula._vots)
+        cursor.execute(query_insert , data)
+        self._conn.commit()
+#        pelicula._id = cursor._last_insert_id
+        pelicula._id = cursor.lastrowid
+        cursor.close()
+        result = Pelicula(pelicula._titol , pelicula._any , pelicula._puntuacio , pelicula._vots , self ,pelicula._id)
+        return result
     
     def llegeix(self, any: int) -> Pelicula:
         pass
@@ -61,3 +70,28 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     def canvia(self,pelicula:Pelicula) -> Pelicula:
         pass
         #falta codi
+
+
+
+if __name__ == "__main__":
+    logging.basicConfig(filename='movies.log',encoding='utf-8',level=logging.DEBUG)
+    credentials = {
+        "host" : "localhost" ,
+        "user" : "dam_app" ,
+        "password" : "1234" ,
+        "database" : "pelis"
+    }
+
+    pers_films = Persistencia_pelicula_mysql(credentials)
+
+    #print(pers_films.allMovies())   // see All movies on terminal
+
+
+    m = Pelicula("La sociedad sin nieve",2023,5.0,10000,pers_films)
+    print("Movie Inserted Successfully .. \n" , m.persistencia.desa(m))
+
+"""     read_movie = pers_films.readMovie("THE MEGG")
+    if read_movie:
+        print("The Movie Found : " , read_movie)
+    else:
+        print("Movie doesn't found . ") """
