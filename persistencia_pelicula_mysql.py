@@ -46,18 +46,47 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
-    def totes_pag(self, id=None) -> List[Pelicula]:
-        pass
-        #falta codi
-    
-    def desa(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
-    
-    def llegeix(self, any: int) -> Pelicula:
-        pass
-        #falta codi
-    
-    def canvia(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
+def totes_pag(self, id=None) -> List[Pelicula]:
+    cursor = self._conn.cursor(buffered=True)
+    if id is None:
+        query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA;"
+        cursor.execute(query)
+    else:
+        query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA WHERE id > %s;"
+        cursor.execute(query, (id,))
+    registres = cursor.fetchall()
+    cursor.reset()
+    resultat = []
+    for registre in registres:
+        pelicula = Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0])
+        resultat.append(pelicula)
+    return resultat
+
+def desa(self, pelicula: Pelicula) -> Pelicula:
+    cursor = self._conn.cursor(buffered=True)
+    query = "INSERT INTO PELICULA (titulo, anyo, puntuacion, votos) VALUES (%s, %s, %s, %s);"
+    data = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
+    cursor.execute(query, data)
+    self._conn.commit()
+    pelicula.id = cursor.lastrowid
+    return pelicula
+
+
+def llegeix(self, any: int) -> Pelicula:
+    cursor = self._conn.cursor(buffered=True)
+    query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA WHERE anyo = %s;"
+    cursor.execute(query, (any,))
+    registre = cursor.fetchone()
+    if registre:
+        pelicula = Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0])
+        return pelicula
+    else:
+        return None
+
+def canvia(self, pelicula: Pelicula) -> Pelicula:
+    cursor = self._conn.cursor(buffered=True)
+    query = "UPDATE PELICULA SET titulo=%s, anyo=%s, puntuacion=%s, votos=%s WHERE id=%s;"
+    data = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots, pelicula.id)
+    cursor.execute(query, data)
+    self._conn.commit()
+    return pelicula
