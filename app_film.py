@@ -51,7 +51,7 @@ def mostra_lent(missatge, v=0.05):
     for c in missatge:
         print(c, end='')
         sys.stdout.flush()
-        time.sleep(v)
+        # time.sleep(v)
     print()
 
 def mostra_llista(llistapelicula):
@@ -60,7 +60,8 @@ def mostra_llista(llistapelicula):
 
 def mostra_seguents(llistapelicula):
     os.system('clear')
-
+    mostra_lent(json.dumps(json.loads(llistapelicula.toJSON()), indent=4), v=0.01)
+    print(llistapelicula.ult_id)
 
 def mostra_menu():
     print("0.- Surt de l'aplicació.")
@@ -69,23 +70,27 @@ def mostra_menu():
 
 def mostra_menu_next10():
     print("0.- Surt de l'aplicació.")
+    print("1.- Mostra les primeres 10 pel·lícules")
     print("2.- Mostra les següents 10 pel·lícules")
+    print("3.- Mostra les 10 pel·lícules anteriors")
 
 
 def procesa_opcio(context):
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
-        "1": lambda ctx : mostra_llista(ctx['llistapelis'])
-    }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
+        "1": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "2": lambda ctx : mostra_seguents(ctx['llistapelis']),
+        "3": lambda ctx : mostra_llista(ctx['llistapelis'])
+}.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = #falta codi
-    persistencies = #falta codi
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
-        persistencia_pelicula=
+        persistencia_pelicula = persistencies['pelicula']
     )
-    films. #falta codi
+    films.llegeix_de_disc(id)
     return films
 
 def bucle_principal(context):
@@ -98,16 +103,25 @@ def bucle_principal(context):
         context["opcio"] = opcio
         
         if context["opcio"] == '1':
-            id = None
+            id = 0
             films = database_read(id)
             context["llistapelis"] = films
 
         elif context["opcio"] == '2':
-            pass
-            #falta codi
+            listapelis = context["llistapelis"]
+            id = listapelis.ult_id
+            films.llegeix_de_disc_seguent(id)
+            context["llistapelis"] = films
+
+        elif context["opcio"] == '3':
+            listapelis = context["llistapelis"]
+            id = listapelis.ult_id
+            films.llegeix_de_disc_anterior(id)
+            context["llistapelis"] = films
+
         procesa_opcio(context)
 
-        #falta codi
+        mostra_menu_next10()
 
 
 def main():
