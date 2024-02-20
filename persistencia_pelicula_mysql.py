@@ -47,10 +47,20 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         return resultat
     
     def totes_pag(self, id=None) -> List[Pelicula]:
-        i=True
-        f=1
-        while(i):
-            while(f<id)
+        if id==None:
+            sql='SELECT * FROM PELICULA LIMIT 10'
+        else:
+            sql=f'select * from PELICULA WHERE id>{id} LIMIT 10'
+
+        list = []
+        cursor = self._conn.cursor(buffered=True)
+        cursor.execute(sql)
+        for x in cursor.fetchall():
+            pelicula = Pelicula(x[1],x[2],x[3],x[4],self,x[0])
+            list.append(pelicula)
+        cursor.reset()
+        cursor.close()
+        return list
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
         sql = f"INSERT INTO PELICULA VALUES '{pelicula.titol}',{pelicula.any},{pelicula.puntuacio},{pelicula.vots}"

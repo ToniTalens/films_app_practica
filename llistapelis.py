@@ -4,6 +4,7 @@ import json
 from typing import List
 from ipersistencia_pelicula import IPersistencia_pelicula
 from pelicula import Pelicula
+from persistencia_pelicula_mysql import Persistencia_pelicula_mysql
 
 class Llistapelis():
     def __init__ (self, persistencia_pelicula: IPersistencia_pelicula) -> None:
@@ -20,7 +21,7 @@ class Llistapelis():
         return self._ult_id
 
     @property
-    def persistencia_pelicula(self) -> IPersistencia_pelicula:
+    def getpersistencia_pelicula(self) -> IPersistencia_pelicula:
         return self._persistencia_pelicula
     
     def __repr__(self):
@@ -36,6 +37,5 @@ class Llistapelis():
         return json.dumps(self_dict)
 
     def llegeix_de_disc(self,id:int):
-        self._pelicules = #falta codi
-        self._ult_id = #falta codi
-
+        self._pelicules =  self.getpersistencia_pelicula.totes_pag(id)
+        self._ult_id = self._pelicules[9].id
