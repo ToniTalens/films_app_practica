@@ -22,3 +22,4 @@ class IPersistencia_pelicula(ABC):
     @abstractclassmethod
     def llegeix(self, any: int) -> Pelicula:
         pass
+    
