@@ -47,13 +47,30 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         return resultat
     
     def totes_pag(self, id=None) -> List[Pelicula]:
-        pass
-        #falta codi
+        cursor = self._conn.cursor(buffered=True)
+        consulta = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA"
+
+        if id is not None:
+            consulta += f" WHERE id > {id} ORDER BY id ASC LIMIT 10;"
+        else:
+            consulta += " ORDER BY id ASC LIMIT 10;"
+
+        cursor.execute(consulta)
+        resultats_consulta = cursor.fetchall()
+        pag = []
+
+        for resultat in resultats_consulta:
+            pelicula = Pelicula(resultat[1],resultat[2],resultat[3],resultat[4],self,resultat[0])
+            pag.append(pelicula)
+            
+        cursor.close()
+        return pag
+
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
         
         cursor = self._conn.cursor(buffered=True)
-        consulta = "INSERT INTO PELICULA (titol, anyo, puntuacio, vots) VALUES (%s, %s, %s, %s);"
+        consulta = "INSERT INTO PELICULA (titulo, anyo, puntuacion, votos) VALUES (%s, %s, %s, %s);"
         parametres = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
         cursor.execute(consulta, parametres)
         self._conn.commit()
@@ -70,7 +87,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         resultats_consulta = cursor.fetchall()
         any = []
         for resultat in resultats_consulta:
-            pelicula = Pelicula(resultat[0],resultat[1],resultat[2],resultat[3],resultat[4])
+            pelicula = Pelicula(resultat[1],resultat[2],resultat[3],resultat[4], self, resultat[0])
             any.append(pelicula)
         cursor.close()
         return any
@@ -79,7 +96,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     def canvia(self,pelicula:Pelicula) -> Pelicula:
         
         cursor = self._conn.cursor(buffered=True)
-        consulta = "UPDATE PELICULA SET titol=%s, anyo=%s, puntuacio=%s, vots=%s WHERE id=%s;"
+        consulta = "UPDATE PELICULA SET titulo=%s, anyo=%s, puntuacion=%s, votos=%s WHERE id=%s;"
         parametres = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots, pelicula.id)
         cursor.execute(consulta, parametres)
         self._conn.commit()
