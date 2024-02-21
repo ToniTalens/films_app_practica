@@ -20,7 +20,7 @@ class Llistapelis():
         return self._ult_id
 
     @property
-    def persistencia_pelicula(self) -> IPersistencia_pelicula:
+    def gpersistencia_pelicula(self) -> IPersistencia_pelicula:
         return self._persistencia_pelicula
     
     def __repr__(self):
@@ -36,6 +36,6 @@ class Llistapelis():
         return json.dumps(self_dict)
 
     def llegeix_de_disc(self,id:int):
-        self._pelicules = #falta codi
-        self._ult_id = #falta codi
+        self._pelicules = self.gpersistencia_pelicula.totes_pag(id)
+        self._ult_id = self._pelicules[-1].id
 
