@@ -4,6 +4,7 @@ import os, yaml, sys, time, json
 from persistencia_pelicula_mysql import Persistencia_pelicula_mysql
 from llistapelis import Llistapelis
 import logging
+from pelicula import Pelicula
 
 THIS_PATH = os.path.dirname(os.path.abspath(__file__))
 RUTA_FITXER_CONFIGURACIO = os.path.join(THIS_PATH, 'configuracio.yml') 
@@ -58,14 +59,49 @@ def mostra_llista(llistapelicula):
     os.system('clear')
     mostra_lent(json.dumps(json.loads(llistapelicula.toJSON()), indent=4), v=0.01)
 
+def inserir():
+    pelicula = input("Introdueix el titol de la pelicula:\n")
+    any = int(input("Introdueix l'any de la pelicula:\n"))
+    puntuacio = float(input("Introdueix la puntuació:\n"))
+    vots = int(input("Introdueix la quantitat de vots:\n"))
+
+    inserir = Pelicula(pelicula,any,puntuacio,vots,"","")
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)
+    bd = persistencies["pelicula"]
+    bd.desa(inserir)
+
+
 def mostra_seguents(llistapelicula):
     os.system('clear')
 
+def update():
+    id = int(input("Inserta el ID de la pelicula que desitjes canviar:\n"))
+    pelicula = input("Introdueix el titol de la pelicula:\n")
+    any = int(input("Introdueix l'any de la pelicula:\n"))
+    puntuacio = float(input("Introdueix la puntuació:\n"))
+    vots = int(input("Introdueix la quantitat de vots:\n"))
+    inserir = Pelicula(pelicula,any,puntuacio,vots,"",id)
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)
+    bd = persistencies["pelicula"]
+    bd.canvia(inserir)
+    
+def buscar():
+    any = int(input("Introdueix l'any de la pelicula:\n"))
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)
+    bd = persistencies["pelicula"]
+    pelis = bd.llegeix(any)
+    mostra_lent(json.dumps(pelis,indent=4))
+    print()
 
 def mostra_menu():
     print("0.- Surt de l'aplicació.")
     print("1.- Mostra les primeres 10 pel·lícules")
-
+    print("3.- Insertar una pelicula")
+    print("4.- Modificar una pelicula")
+    print("5.- Buscar pelicules per any")
 
 def mostra_menu_next10():
     print("0.- Surt de l'aplicació.")
@@ -75,7 +111,10 @@ def mostra_menu_next10():
 def procesa_opcio(context):
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
-        "1": lambda ctx : mostra_llista(ctx['llistapelis'])
+        "1": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "3": lambda ctx : inserir(),
+        "4": lambda ctx : update(),
+        "5": lambda ctx : buscar()
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
 def database_read(id:int):
@@ -91,9 +130,10 @@ def database_read(id:int):
 def bucle_principal(context):
     opcio = None
     
-    mostra_menu()
+    
 
     while opcio != '0':
+        mostra_menu()
         opcio = input("Selecciona una opció: ")
         context["opcio"] = opcio
         
@@ -108,8 +148,9 @@ def bucle_principal(context):
             context["llistapelis"] = films
             context["opcio"] = '1'
         procesa_opcio(context)
-
-        mostra_menu_next10()
+        
+        if context["opcio"]=='1':
+            mostra_menu_next10()
         
 
 

@@ -62,29 +62,33 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         cursor.close()
         return list
     
-    def desa(self,pelicula:Pelicula) -> Pelicula:
-        sql = f"INSERT INTO PELICULA VALUES '{pelicula.titol}',{pelicula.any},{pelicula.puntuacio},{pelicula.vots}"
+    def desa(self,pelicula:Pelicula):
+        sql = f"INSERT INTO PELICULA(titulo,anyo,puntuacion,votos) VALUES ('{pelicula.titol}',{pelicula.any},{pelicula.puntuacio},{pelicula.vots})"
         cursor = self._conn.cursor(buffered=True)
         cursor.execute(sql)
         self._conn.commit()
-        peliculaDes = cursor.fetchall()
         cursor.close()
-        return peliculaDes
     
-    def llegeix(self, any: int) -> Pelicula:
+    def llegeix(self, any: int) -> list:
         sql=f"SELECT * FROM PELICULA WHERE anyo={any}"
-        cursor = self._conn.cursor(buffered=True)
+        cursor = self._conn.cursor()
         cursor.execute(sql)
-        self._conn.commit()
+        fin=[]
         peliculaSel = cursor.fetchall()
+        for x in peliculaSel:
+            dict={}
+            dict["id"] = x[0]
+            dict["titulo"]=x[1]
+            dict["anyo"]=x[2]
+            dict["puntuacion"]=x[3]
+            dict["votos"]=x[4]
+            fin.append(dict)
         cursor.close()
-        return peliculaSel
+        return fin
 
-    def canvia(self,pelicula:Pelicula) -> Pelicula:
+    def canvia(self,pelicula:Pelicula):
         sql = f"UPDATE PELICULA SET titulo = '{pelicula.titol}',anyo = {pelicula.any},puntuacion = {pelicula.puntuacio}, votos = {pelicula.vots} WHERE id={pelicula.id}"
         cursor = self._conn.cursor(buffered=True)
         cursor.execute(sql)
         self._conn.commit()
-        peliculaCan = cursor.fetchall()
         cursor.close()
-        return peliculaCan
