@@ -79,7 +79,6 @@ def procesa_opcio(context):
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
         "1": lambda ctx : mostra_llista(ctx['llistapelis']),
-        "2": lambda ctx : mostra_llista(ctx['llistapelisany'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
 def database_read(id:int):
@@ -146,7 +145,7 @@ def bucle_principal(context):
             id = None
             films = database_persistencia(id)
             films.llegeixPerAny(any)
-            context["llistapelisany"] = films
+            context["llistapelis"] = films
 
         elif context["opcio"] == '3':
             titol = input("Insereix el titol de la pel·licula: ")
