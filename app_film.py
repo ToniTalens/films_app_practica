@@ -55,7 +55,7 @@ def mostra_lent(missatge, v=0.05):
     print()
 
 def mostra_llista(llistapelicula):
-    #os.system('clear')
+    os.system('clear')
     mostra_lent(json.dumps(json.loads(llistapelicula.toJSON()), indent=4), v=0.001)
 
 def mostra_seguents(llistapelicula):
@@ -76,9 +76,13 @@ def mostra_menu_next10():
 
 
 def procesa_opcio(context):
+    # if context["opcio"] == '0': return mostra_lent("Fins la propera")
+    # elif context["opcio"] == '1': return mostra_llista(context["llistapelis"])
+    # elif context["opcio"] == '2': return mostra_llista(context["llistapelis"])
+    # else : return mostra_lent("opcio incorrecta!!!")
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
-        "1": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "1": lambda ctx : mostra_llista(ctx['llistapelis'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
 def database_read(id:int):
@@ -146,6 +150,7 @@ def bucle_principal(context):
             films = database_persistencia(id)
             films.llegeixPerAny(any)
             context["llistapelis"] = films
+            
 
         elif context["opcio"] == '3':
             titol = input("Insereix el titol de la pel·licula: ")
