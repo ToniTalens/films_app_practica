@@ -1,7 +1,7 @@
 # Pràctica 3 UF2 M06 DAM
 
-1. **Què fan els mètodes get_configuracio i get_persistencies?
-   El mètode get_configuracio retorna un diccionari amb les dades d'un fitxer .yml que es passa com parametre, aquest fitxer conté totes les dades de la configuració de la base de dades.**
+1. **Què fan els mètodes get_configuracio i get_persistencies?**
+El mètode get_configuracio retorna un diccionari amb les dades d'un fitxer .yml que es passa com parametre, aquest fitxer conté totes les dades de la configuració de la base de dades.
 
 - Motor de la base de dades
 - El host
