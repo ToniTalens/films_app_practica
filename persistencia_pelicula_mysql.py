@@ -48,7 +48,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     
     def totes_pag(self, id) -> List[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
-        sql = f"SELECT * FROM PELICULA WHERE ID BETWEEN ({id} + 9) AND {id}"
+        sql = f"SELECT * FROM PELICULA WHERE ID BETWEEN {id} AND ({id} + 10)"
         cursor.execute(sql)
         registres = cursor.fetchall()
         resultat = []

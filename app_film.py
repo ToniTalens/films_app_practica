@@ -55,8 +55,8 @@ def mostra_lent(missatge, v=0.05):
     print()
 
 def mostra_llista(llistapelicula):
-    os.system('clear')
-    mostra_lent(json.dumps(json.loads(llistapelicula.toJSON()), indent=4), v=0.01)
+    #os.system('clear')
+    mostra_lent(json.dumps(json.loads(llistapelicula.toJSON()), indent=4), v=0.001)
 
 def mostra_seguents(llistapelicula):
     os.system('clear')
@@ -121,7 +121,7 @@ def bucle_principal(context):
         context["opcio"] = opcio
         
         if context["opcio"] == '1':
-            id = 1
+            id = 0
             films = database_read(id)
             context["llistapelis"] = films
             procesa_opcio(context)
@@ -131,9 +131,11 @@ def bucle_principal(context):
             context["opcio"] = opcio
 
             while context["opcio"] != '0':
-                procesa_opcio(context)
+                id = id + 10
+                
                 films = database_read(id)
                 context["llistapelis"] = films
+                procesa_opcio(context)
 
                 mostra_menu_next10()
                 opcio = input("Selecciona una opció: ")
