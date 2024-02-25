@@ -80,16 +80,17 @@ def procesa_opcio(context):
 
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = #falta codi
-    persistencies = #falta codi
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
-        persistencia_pelicula=
+        persistencia_pelicula=persistencies["pelicula"]
     )
-    films. #falta codi
+    films.pelicules = films.persistencia_pelicula.totes_pag(id)
     return films
 
 def bucle_principal(context):
     opcio = None
+    id = 0
     
     mostra_menu()
 
@@ -101,11 +102,17 @@ def bucle_principal(context):
             id = None
             films = database_read(id)
             context["llistapelis"] = films
+            mostra_llista(films)
 
         elif context["opcio"] == '2':
-            pass
+            context["id"] +=10
+            films = database_read(context["id"])
+#           films = database_read(id)
+#             context["llistapelis"] = Persistencia_pelicula_mysql.totes_pag(context["id"])
+            context["llistapelis"] = films
+            mostra_llista(films)
             #falta codi
-        procesa_opcio(context)
+        #procesa_opcio(context)
 
         #falta codi
 

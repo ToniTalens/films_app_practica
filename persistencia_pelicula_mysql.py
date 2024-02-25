@@ -27,12 +27,14 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             return False
         return True
     
+    
     def count(self) -> int:
         cursor = self._conn.cursor(buffered=True)
         query = "SELECT ID , TITULO , ANYO , PUNTUACION , VOTOS FROM PELICULA;"
         cursor.execute(query)
         count = cursor.rowcount
         return count
+    
     
     def totes(self) -> List[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
@@ -46,16 +48,15 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
+
     def totes_pag(self, id=None) -> List[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
-        per_page = 10
-        start_at = 0
-        #query_pag = ("SELECT * FROM PELICULA LIMIT %s OFFSET %s;" , (start_at,per_page))
-        query_pag = ("SELECT * FROM PELICULA LIMIT 10 OFFSET 20;")
-        #cursor.execute(query_pag , (start_at,per_page,))
-        cursor.execute(query_pag)
+        query_pag = ("""SELECT ID, TITULO, ANYO, PUNTUACION, VOTOS
+                      FROM PELICULA 
+                     WHERE ID > %s 
+                     ORDER BY ID ASC LIMIT 10;""")
+        cursor.execute(query_pag , (id,))
         results = cursor.fetchall()
-        #cursor.lastrowid
         result_pag = []
         for result in results:
             pelicula = Pelicula(result[1],result[2],result[3],result[4],self,result[0])
@@ -92,7 +93,6 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         print(f"The Movies for the year {any} are : \n")
         for movie in movies_of_year:
             print(movie , "\n")
-    
         return movies_of_year
     
         """if result :
@@ -125,13 +125,13 @@ if __name__ == "__main__":
     pers_films = Persistencia_pelicula_mysql(credencials)
 
     ## count All the Movies in : 
-    print("The number of movies are : \n",pers_films.count())
+    #print("The number of movies are : \n",pers_films.count())
 
     ## Show all the movies on console
     #print("All the movies of the PELICULA table are : \n" , pers_films.totes())
 
     ## Movie's Pagination : 
-    print("The pagination of movies : \n" , pers_films.totes_pag())
+    #print("The pagination of movies : \n" , pers_films.totes_pag(0))
 
     ## see All movies on terminal :
     #print(pers_films.totes())   

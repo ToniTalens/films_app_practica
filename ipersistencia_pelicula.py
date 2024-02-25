@@ -3,6 +3,7 @@ from pelicula import Pelicula
 from typing import List
 
 class IPersistencia_pelicula(ABC):
+    
     @abstractclassmethod
     def totes(self) -> List[Pelicula]:
         pass
