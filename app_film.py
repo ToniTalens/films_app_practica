@@ -2,11 +2,12 @@
 
 import os, yaml, sys, time, json
 from persistencia_pelicula_mysql import Persistencia_pelicula_mysql
+from persistencia_pelicula_pgSQL import Persistencia_pelicula_pgSQL
 from llistapelis import Llistapelis
 import logging
 
 THIS_PATH = os.path.dirname(os.path.abspath(__file__))
-RUTA_FITXER_CONFIGURACIO = os.path.join(THIS_PATH, 'configuracio.yml') 
+RUTA_FITXER_CONFIGURACIO = os.path.join(THIS_PATH, 'configuraciopgsql.yml') 
 print(RUTA_FITXER_CONFIGURACIO)
 
 def get_configuracio(ruta_fitxer_configuracio) -> dict:
@@ -25,6 +26,14 @@ def get_persistencies(conf: dict) -> dict:
         return {
             'pelicula': Persistencia_pelicula_mysql(credencials)
         }
+    elif conf["base de dades"]["motor"].lower().strip() == "postgresql":
+        credencials['host'] = conf["base de dades"]["host"]
+        credencials['user'] = conf["base de dades"]["user"]
+        credencials['password'] = str(conf["base de dades"]["password"])
+        credencials['database'] = conf["base de dades"]["database"]
+        return {
+            'pelicula': Persistencia_pelicula_pgSQL(credencials)
+        }
     else:
         return {
             'pelicula': None
@@ -36,7 +45,6 @@ def mostra_lent(missatge, v=0.05):
         sys.stdout.flush()
         time.sleep(v)
     print()
-
 
 def landing_text():
     os.system('clear')
@@ -82,7 +90,8 @@ def procesa_opcio(context):
     # else : return mostra_lent("opcio incorrecta!!!")
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
-        "1": lambda ctx : mostra_llista(ctx['llistapelis'])
+        "1": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "2": lambda ctx : mostra_llista(ctx['llistapelis'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
 def database_read(id:int):
@@ -95,6 +104,7 @@ def database_read(id:int):
     films.llegeix_de_disc(id)
     return films
 
+#metode sense utilitzar
 def database_readall(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
@@ -134,7 +144,7 @@ def bucle_principal(context):
             context["opcio"] = opcio
 
             while context["opcio"] != '0':
-                id = id + 10
+                id = films.ult_id
                 
                 films = database_read(id)
                 context["llistapelis"] = films
@@ -175,9 +185,6 @@ def bucle_principal(context):
             continue
         
         procesa_opcio(context)
-
-        
-
 
 def main():
     context = {
