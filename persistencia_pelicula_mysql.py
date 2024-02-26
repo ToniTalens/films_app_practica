@@ -87,7 +87,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         cursor = self._conn.cursor(buffered=True)
         query = "SELECT id, titulo, anyo, puntuacion, votos from PELICULA WHERE anyo = '%s';"
         cursor.execute(query, any)
-        cursor.commit()
+        #cursor.commit()
         registres = cursor.fetchall()
         resultat = []
         for registre in registres:
