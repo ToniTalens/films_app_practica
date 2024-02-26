@@ -42,22 +42,34 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         cursor.reset()
         resultat = []
         for registre in registres:
-            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],registre[0])
             resultat.append(pelicula)
         return resultat
     
+    indice_actual = 0
+    
     def totes_pag(self, id=None) -> List[Pelicula]:
+
+        global indice_actual 
+
+        indice=0
+
+
         cursor = self._conn.cursor(buffered=True)
-        query = "SELECT * FROM PELICULA WHERE id => :{id} ORDER BY id LIMIT 10;"
+        query = f"SELECT * FROM PELICULA"
+
+        if id is not None:
+            query += f"WHERE id > '{id}'"
+        query +=  "ORDER BY id LIMIT 10;"
+
          
         cursor.execute(query)
         registres = cursor.fetchall()
         cursor.reset()
         resultat = []
-        for registre in registres:
-            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],registre[0])
-            resultat.append(pelicula)
-        return resultat
+        
+        return registres
+        
         
       
         #falta codi
@@ -149,4 +161,45 @@ if __name__ =='__main__':
     #nueva_peli = Pelicula("Taylor Swift",2023,10,32324242,pers_films, 2)
     #print(pers_films.canvia(nueva_peli))
 
-    print(pers_films.llegeix(1982))
+    #print(pers_films.llegeix(1982))
+   
+
+    total_rows= pers_films.count()
+
+    id_contador = 0
+
+print(pers_films.totes_pag(id_contador))
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
