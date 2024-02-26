@@ -88,17 +88,31 @@ def procesa_opcio(context):
         "2": lambda ctx : mostra_llista(ctx['llistapelis']),
         "3": lambda ctx : mostra_llista(ctx['llistapelis']),
         "4": lambda ctx : mostra_llista(ctx['llistapelis']),
-        "5": lambda ctx : mostra_llista(ctx['llistapelis'])
+        "5": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "6": lambda ctx : mostra_llista(ctx['llistapelis'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
-def database_read(id:int = None, context = None, año = None):
+def database_read(id:int=None, context=None, any:int = None) -> None:
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
         persistencia_pelicula=persistencies["pelicula"]
     )
-    films.llegeix_de_disc(id, context, año)
+    
+    if context["opcio"] == '1':
+        films.llegeix_de_disc(id, context)
+    elif context["opcio"] == '2':
+        films.llegeix_de_disc(id, context)
+    elif context["opcio"] == '3':
+        films.llegeix_de_disc(context)
+    elif context["opcio"] == '4':
+        films.llegeix_de_disc(context)
+    elif context["opcio"] == '5':
+        films.llegeix_de_disc(context)
+    elif context["opcio"] == '6':
+        films.llegeix_de_disc(context, any)
+
     return films
 
 def bucle_principal(context):
@@ -125,24 +139,23 @@ def bucle_principal(context):
             context["llistapelis"] = films
         
         elif context["opcio"] == '3':
-            pass
+            films = database_read(context)
+            context["llistapelis"] = films
 
         elif context["opcio"] == '4':
-            pass
+            films = database_read(context)
+            context["llistapelis"] = films
 
         elif context["opcio"] == '5':
             films = database_read(context)
             context["llistapelis"] = films
-        elif context["opcio"] == '6':
-            id = 0
-            año = int(input("Introdueix l'any per consultar les pel·lícules que hi van sortir: "))
-            films = database_read(context, año)
-            context["llistapelis"] = films
 
+        elif context["opcio"] == '6':
+            any = int(input("Introdueix l'any per consultar les pel·lícules que hi van sortir: "))
+            films = database_read(context, any)
+            context["llistapelis"] = films
         procesa_opcio(context)
         a += 1
-        #falta codi
-
 
 def main():
     context = {

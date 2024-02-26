@@ -85,8 +85,9 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     
     def llegeix(self, any: int) -> Pelicula:
         cursor = self._conn.cursor(buffered=True)
-        query = "SELECT id, titulo, anyo, puntuacion, votos from PELICULA WHERE anyo = '%s';"
-        cursor.execute(query, any)
+        print("HOLA")
+        query = f"SELECT id, titulo, anyo, puntuacion, votos from PELICULA WHERE anyo = {any};"
+        cursor.execute(query)
         #cursor.commit()
         registres = cursor.fetchall()
         resultat = []
