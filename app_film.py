@@ -65,17 +65,27 @@ def mostra_seguents(llistapelicula):
 def mostra_menu():
     print("0.- Surt de l'aplicació.")
     print("1.- Mostra les primeres 10 pel·lícules")
+    print("3.- Insereix una nova pel·lícula")
+    print("4.- Modifica una pel·lícula existent")
+    print("5.- Consulta totes les pel·lícules")
 
 
 def mostra_menu_next10():
     print("0.- Surt de l'aplicació.")
     print("2.- Mostra les següents 10 pel·lícules")
+    print("3.- Insereix una nova pel·lícula")
+    print("4.- Modifica una pel·lícula existent")
+    print("5.- Consulta totes les pel·lícules")
 
 
 def procesa_opcio(context):
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
-        "1": lambda ctx : mostra_llista(ctx['llistapelis'])
+        "1": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "2": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "3": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "4": lambda ctx : mostra_llista(ctx['llistapelis']),
+        "5": lambda ctx : mostra_llista(ctx['llistapelis'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
 def database_read(id:int):
@@ -83,30 +93,55 @@ def database_read(id:int):
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
-        persistencia_pelicula=Persistencia_pelicula_mysql("")
+        persistencia_pelicula=persistencies["pelicula"]
     )
-    films.llegeix_de_disc 
+    films.llegeix_de_disc(id)
     return films
 
 def bucle_principal(context):
     opcio = None
     
     mostra_menu()
+    a = 0
 
     while opcio != '0':
+        if a is not 0:
+            mostra_menu_next10()
         opcio = input("Selecciona una opció: ")
         context["opcio"] = opcio
         
         if context["opcio"] == '1':
-            id = None
+            #id = None
+            id = int(input("Introdueix el id: "))
             films = database_read(id)
             context["llistapelis"] = films
 
         elif context["opcio"] == '2':
-            pass
-            #falta codi
-        procesa_opcio(context)
+            id+=10
+            films = database_read(id)
+            context["llistapelis"] = films
+        
+        elif context["opcio"] == '3':
+            inserir = Persistencia_pelicula_mysql()
+            inserir.desa()
 
+        elif context["opcio"] == '4':
+            pass
+
+        elif context["opcio"] == '5':
+            #id = 0
+            #films = database_read(id, context)
+            #context["llistapelis"] = films
+            la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+            persistencies = get_persistencies(la_meva_configuracio)
+          #  consulta = Persistencia_pelicula_mysql(persistencies["pelicula"])
+          #  consulta.totes()
+            consulta = Persistencia_pelicula_mysql()
+            consulta.totes()
+            
+
+        procesa_opcio(context)
+        a += 1
         #falta codi
 
 

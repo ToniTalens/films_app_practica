@@ -46,22 +46,33 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
-    def totes_pag(self, id=None) -> List[Pelicula]:
+    def totes_pag(self, id) -> List[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
         if id is None:
             query = "SELECT * FROM PELICULA LIMIT 10;"
             cursor.execute(query)
+            registres = cursor.fetchall()
+            resultat = []
+            for registre in registres:
+                pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+                resultat.append(pelicula)
         else:
-            query = "SELECT * FROM PELICULA  "
+            query = f"SELECT * FROM PELICULA WHERE id >= '{id}' LIMIT 10;"
             cursor.execute(query)
+            registres = cursor.fetchall()
+            resultat = []
+            for registre in registres:
+                pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+                resultat.append(pelicula)
+        return resultat
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
         cursor = self._conn.cursor(buffered=True)
-        #input6 = input("Nom de la pel·lícula: ")
+        input6 = input("Nom de la pel·lícula: ")
         #comprovacio = existeix(input6)
-        #input7 = int(input("Any de publicació: "))
-        #input8 = float(input("Puntuació: "))
-        #input9 = int(input("Vots: "))
+        input7 = int(input("Any de publicació: "))
+        input8 = float(input("Puntuació: "))
+        input9 = int(input("Vots: "))
         query = "INSERT INTO PELICULA (TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s);"
         pel = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
         cursor.execute(query, pel)

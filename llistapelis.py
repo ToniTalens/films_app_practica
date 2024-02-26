@@ -39,6 +39,7 @@ class Llistapelis():
         self._pelicules = self.persistencia_pelicula.totes_pag(id)
         self._ult_id = max(pelicula.id for pelicula in self.pelicules) if self._pelicules else 0
 
+
 #    def existeix(self, input6):
 #        cursor = self._conn.cursor(buffered=True)
 #        query = "SELECT id, titulo, anyo, puntuacion, votos from PELICULA WHERE titulo = '%s';"
