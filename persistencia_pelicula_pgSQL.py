@@ -13,6 +13,7 @@ class Persistencia_pelicula_pgSQL(IPersistencia_pelicula):
         user=credencials["user"]
         password=credencials["password"]
         database=credencials["database"]
+        logging.basicConfig(filename="pelicules.log", encoding='utf-8',level=logging.DEBUG)
         self._conn = psycopg.connect(f"host={host} dbname={database} user={user} password={password}")
             
         
@@ -43,7 +44,9 @@ class Persistencia_pelicula_pgSQL(IPersistencia_pelicula):
         for registre in registres:
             pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
             resultat.append(pelicula)
+        logging.info("Rebudes totes les pelicules")
         return resultat
+        
     
     def totes_pag(self, id) -> List[Pelicula]:
         cursor = self._conn.cursor()
@@ -54,6 +57,7 @@ class Persistencia_pelicula_pgSQL(IPersistencia_pelicula):
         for registre in registres:
             pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
             resultat.append(pelicula)
+        logging.info(f"Rebudes totes les pelicules de la id {id} a la id {id + 10}")
         return resultat
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
@@ -62,7 +66,7 @@ class Persistencia_pelicula_pgSQL(IPersistencia_pelicula):
         val = (pelicula.titol,pelicula.any,pelicula.puntuacio,pelicula.vots)
         cursor.execute(sql, val)
         self._conn.commit()
-        print("PELICULA INSERTADA")
+        logging.info(f"Pelicula con id = {pelicula.id} insertada")
         return pelicula
     
     def llegeix(self, any: int) ->  List[Pelicula]:
@@ -73,6 +77,7 @@ class Persistencia_pelicula_pgSQL(IPersistencia_pelicula):
         for registre in registres:
             pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
             resultat.append(pelicula)
+        logging.info(f"Rebudes totes les pelicules amb l'any {any}")
         return resultat
         
     
@@ -82,5 +87,5 @@ class Persistencia_pelicula_pgSQL(IPersistencia_pelicula):
                        SET TITULO = '{pelicula.titol}', ANYO = {pelicula.any}, PUNTUACION = {pelicula.puntuacio}, VOTOS = {pelicula.vots}
                        WHERE ID = {pelicula.id}""")
         self._conn.commit()
-        print(f"S'HA ACTUALITZAT LA PELICULA {pelicula.id}")
+        logging.info(f"S'HA ACTUALITZAT LA PELICULA {pelicula.id}")
         return pelicula
