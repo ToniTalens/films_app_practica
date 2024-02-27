@@ -7,13 +7,16 @@ from llistapelis import Llistapelis
 import logging
 
 THIS_PATH = os.path.dirname(os.path.abspath(__file__))
-RUTA_FITXER_CONFIGURACIO = os.path.join(THIS_PATH, 'configuraciopgsql.yml') 
-print(RUTA_FITXER_CONFIGURACIO)
-
+# Canviat de constant a variable per el menu
+ruta_fitxer_configuracio = os.path.join(THIS_PATH, 'configuracio.yml') 
+print(ruta_fitxer_configuracio)
 def get_configuracio(ruta_fitxer_configuracio) -> dict:
     config = {}
-    with open(ruta_fitxer_configuracio, 'r') as conf:
-        config = yaml.safe_load(conf)
+    try:
+        with open(ruta_fitxer_configuracio, 'r') as conf:
+            config = yaml.safe_load(conf)
+    except (FileNotFoundError):
+        print(f"El fitxer: {ruta_fitxer_configuracio} no existeix")
     return config
 
 def get_persistencies(conf: dict) -> dict:
@@ -96,7 +99,7 @@ def procesa_opcio(context):
 
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    la_meva_configuracio = get_configuracio(ruta_fitxer_configuracio)
     persistencies = get_persistencies(la_meva_configuracio)["pelicula"]
     films = Llistapelis(
         persistencia_pelicula=persistencies
@@ -107,7 +110,7 @@ def database_read(id:int):
 #metode sense utilitzar
 def database_readall(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    la_meva_configuracio = get_configuracio(ruta_fitxer_configuracio)
     persistencies = get_persistencies(la_meva_configuracio)["pelicula"]
     films = Llistapelis(
         persistencia_pelicula=persistencies
@@ -118,7 +121,7 @@ def database_readall(id:int):
 #Metode que retorna films
 def database_persistencia(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    la_meva_configuracio = get_configuracio(ruta_fitxer_configuracio)
     persistencies = get_persistencies(la_meva_configuracio)["pelicula"]
     films = Llistapelis(
         persistencia_pelicula=persistencies
@@ -127,7 +130,16 @@ def database_persistencia(id:int):
 
 def bucle_principal(context):
     opcio = None
-
+    try:
+        fitxer = input("Escriu el nom exacte del fitxer de configuracio que vols utilitzar (incloent la extensió): ")
+        global ruta_fitxer_configuracio 
+        ruta_fitxer_configuracio = os.path.join(THIS_PATH, fitxer) 
+        open(ruta_fitxer_configuracio, "rt")
+    except (FileNotFoundError):
+        print(f"No s'ha trobat el fitxer: {fitxer}")
+        sys.exit(1)
+        
+    print(f"Fitxer {fitxer}")
     while opcio != '0':
         mostra_menu()
         opcio = input("Selecciona una opció: ")
@@ -193,7 +205,7 @@ def main():
     landing_text()
     bucle_principal(context)
 
-    (get_configuracio(RUTA_FITXER_CONFIGURACIO))
+    (get_configuracio(ruta_fitxer_configuracio))
 
 
 if __name__ == "__main__":
