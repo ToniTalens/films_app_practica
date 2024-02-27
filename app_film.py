@@ -20,7 +20,7 @@ def get_persistencies(conf: dict) -> dict:
     if conf["base de dades"]["motor"].lower().strip() == "mysql":
         credencials['host'] = conf["base de dades"]["host"]
         credencials['user'] = conf["base de dades"]["user"]
-        credencials['password'] = conf["base de dades"]["password"]
+        credencials['password'] = str(conf["base de dades"]["password"])
         credencials['database'] = conf["base de dades"]["database"]
         return {
             'pelicula': Persistencia_pelicula_mysql(credencials)
@@ -56,7 +56,7 @@ def mostra_lent(missatge, v=0.05):
 
 def mostra_llista(llistapelicula):
     os.system('clear')
-    mostra_lent(json.dumps(json.loads(llistapelicula.toJSON()), indent=4), v=0.01)
+    mostra_lent(json.dumps(json.loads(llistapelicula.toJSON()), indent=4), v=0.001)
 
 def mostra_seguents(llistapelicula):
     os.system('clear')
@@ -65,14 +65,21 @@ def mostra_seguents(llistapelicula):
 def mostra_menu():
     print("0.- Surt de l'aplicació.")
     print("1.- Mostra les primeres 10 pel·lícules")
+    print("2.- Cerca pelicules per l'any")
+    print("3.- Insereix una nova pel·licula")
+    print("4.- Modificar una pel·licula existent")
 
 
 def mostra_menu_next10():
     print("0.- Surt de l'aplicació.")
-    print("2.- Mostra les següents 10 pel·lícules")
+    print("1.- Mostra les següents 10 pel·lícules")
 
 
 def procesa_opcio(context):
+    # if context["opcio"] == '0': return mostra_lent("Fins la propera")
+    # elif context["opcio"] == '1': return mostra_llista(context["llistapelis"])
+    # elif context["opcio"] == '2': return mostra_llista(context["llistapelis"])
+    # else : return mostra_lent("opcio incorrecta!!!")
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
         "1": lambda ctx : mostra_llista(ctx['llistapelis'])
@@ -80,34 +87,96 @@ def procesa_opcio(context):
 
 def database_read(id:int):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = #falta codi
-    persistencies = #falta codi
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)["pelicula"]
     films = Llistapelis(
-        persistencia_pelicula=
+        persistencia_pelicula=persistencies
     )
-    films. #falta codi
+    films.llegeix_de_disc(id)
+    return films
+
+def database_readall(id:int):
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)["pelicula"]
+    films = Llistapelis(
+        persistencia_pelicula=persistencies
+    )
+    films.llegeix_de_disc(id)
+    return films
+
+#Metode que retorna films
+def database_persistencia(id:int):
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)["pelicula"]
+    films = Llistapelis(
+        persistencia_pelicula=persistencies
+    )
     return films
 
 def bucle_principal(context):
     opcio = None
-    
-    mostra_menu()
 
     while opcio != '0':
+        mostra_menu()
         opcio = input("Selecciona una opció: ")
         context["opcio"] = opcio
         
         if context["opcio"] == '1':
-            id = None
+            id = 0
             films = database_read(id)
             context["llistapelis"] = films
+            procesa_opcio(context)
+            
+            mostra_menu_next10()
+            opcio = input("Selecciona una opció: ")
+            context["opcio"] = opcio
+
+            while context["opcio"] != '0':
+                id = id + 10
+                
+                films = database_read(id)
+                context["llistapelis"] = films
+                procesa_opcio(context)
+
+                mostra_menu_next10()
+                opcio = input("Selecciona una opció: ")
+                context["opcio"] = opcio
 
         elif context["opcio"] == '2':
-            pass
-            #falta codi
+            any = int(input("Escriu un any: "))
+            id = None
+            films = database_persistencia(id)
+            films.llegeixPerAny(any)
+            context["llistapelis"] = films
+            
+
+        elif context["opcio"] == '3':
+            titol = input("Insereix el titol de la pel·licula: ")
+            any = int(input("Insereix l'any de la pel·licula: "))
+            puntuacio = float(input("Insereix la puntuacio de la pel·licula: "))
+            vots = int(input("Insereix el numero de vots de la pel·licula: "))
+            id = None
+            films = database_persistencia(id)
+            films.desa(titol, any, puntuacio, vots)
+            context["opcio"] = opcio
+            continue
+            
+        elif context["opcio"] == '4':
+            id = int(input("Insereix el id de la pel·licula que vols modificar: "))
+            titol = input("Insereix el titol de la pel·licula: ")
+            any = int(input("Insereix l'any de la pel·licula: "))
+            puntuacio = float(input("Insereix la puntuacio de la pel·licula: "))
+            vots = int(input("Insereix el numero de vots de la pel·licula: "))
+            films = database_persistencia(id)
+            films.canvia(id, titol, any, puntuacio, vots)
+            context["opcio"] = opcio
+            continue
+        
         procesa_opcio(context)
 
-        #falta codi
+        
 
 
 def main():
@@ -116,6 +185,8 @@ def main():
     }
     landing_text()
     bucle_principal(context)
+
+    (get_configuracio(RUTA_FITXER_CONFIGURACIO))
 
 
 if __name__ == "__main__":
