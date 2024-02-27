@@ -92,26 +92,14 @@ def procesa_opcio(context):
         "6": lambda ctx : mostra_llista(ctx['llistapelis'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
-def database_read(id:int=None, context:dict=None, any= None):
+def database_read(id:int=None, context:dict=None, any:int= None, peli:list=None):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
         persistencia_pelicula=persistencies["pelicula"]
     )
-    #if context["opcio"] == '1' or context["opcio"] == '2' or context["opcio"] == '3' or context["opcio"] == '4' or context["opcio"] == '5' or context["opcio"] == '6':
-    films.llegeix_de_disc(id=id, context=context, any=any)
-    #if context["opcio"] == '1' or context["opcio"] == '2':
-    #    films.llegeix_de_disc(id, context)
-    #elif context["opcio"] == '3':
-    #    films.llegeix_de_disc(context)
-    #elif context["opcio"] == '4':
-    #    films.llegeix_de_disc(context)
-    #elif context["opcio"] == '5':
-    #    films.llegeix_de_disc(context=context)
-    #elif context["opcio"] == '6':
-    #    films.llegeix_de_disc(id=id, context=context, any=any)
-
+    films.llegeix_de_disc(id=id, context=context, any=any, peli=peli)
     return films
 
 def bucle_principal(context):
@@ -138,7 +126,13 @@ def bucle_principal(context):
             context["llistapelis"] = films
         
         elif context["opcio"] == '3':
-            films = database_read(context)
+            titol = input("Nom de la pel·lícula: ")
+            anyo = int(input("Any de publicació: "))
+            puntuacio = float(input("Puntuació: "))
+            vots = int(input("Vots: "))
+            peli=[]
+            peli.append(titol), peli.append(anyo), peli.append(puntuacio), peli.append(vots)
+            films = database_read(context=context, peli=peli)
             context["llistapelis"] = films
 
         elif context["opcio"] == '4':

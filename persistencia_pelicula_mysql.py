@@ -68,25 +68,21 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
         cursor = self._conn.cursor(buffered=True)
-        input6 = input("Nom de la pel·lícula: ")
-        #comprovacio = existeix(input6)
-        input7 = int(input("Any de publicació: "))
-        input8 = float(input("Puntuació: "))
-        input9 = int(input("Vots: "))
         query = "INSERT INTO PELICULA (TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s);"
         pel = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
         cursor.execute(query, pel)
-        registres = cursor.fetchone()
-        resultat = []
-        for registre in registres:
-            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
-            resultat.append(pelicula)
-        return resultat
+        cursor.execute("SELECT * FROM PELICULA ORDER BY ID desc LIMIT 1;")
+        registres = cursor.fetchall()
+        cursor.reset()
+        peli=[]
+        for p in registres:
+            pelicula = Pelicula(p[1],p[2],p[3],p[4],self,p[0])
+            peli.append(pelicula)
+        return peli
     
     def llegeix(self, any) -> list[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
         query = f"SELECT * FROM PELICULA WHERE anyo = '{any}';"
-        #cursor.execute(query, (any,))  
         cursor.execute(query)  
         registres = cursor.fetchall()
         cursor.reset()
