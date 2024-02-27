@@ -1,2 +1,6 @@
 INFO:root:[Persistencia] Nova pelicula amb id = 1701.
 INFO:root:[Persistencia] Trobada pelicula La sociedad sin nieve.
+INFO:root:Rebudes totes les pelicules de la id 0 a la id 10
+INFO:root:Rebudes totes les pelicules de la id 10 a la id 20
+INFO:root:Rebudes totes les pelicules amb l'any 3000
+INFO:root:Rebudes totes les pelicules amb l'any 3000

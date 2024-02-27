@@ -15,14 +15,15 @@ class Persistencia_pelicula_pgSQL(IPersistencia_pelicula):
         database=credencials["database"]
         logging.basicConfig(filename="pelicules.log", encoding='utf-8',level=logging.DEBUG)
         self._conn = psycopg.connect(f"host={host} dbname={database} user={user} password={password}")
-            
+        
+        if not self.check_table():
+            self.create_table()
         
 
     def check_table(self):
         try:
             cursor = self._conn.cursor()
             cursor.execute("SELECT * FROM PELICULA;")
-            cursor.reset()
         except (Exception, psycopg.Error):
             return False
         return True
