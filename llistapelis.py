@@ -35,7 +35,7 @@ class Llistapelis():
             }   
         return json.dumps(self_dict)
 
-    def llegeix_de_disc(self,id:int=None, context=None, any:int=None):
+    def llegeix_de_disc(self,id:int=None, context=None, any=None):
         if context["opcio"] == '1':
             self._pelicules = self.persistencia_pelicula.totes_pag(id)
             self._ult_id = max(pelicula.id for pelicula in self.pelicules) if self._pelicules else 0
