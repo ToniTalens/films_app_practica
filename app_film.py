@@ -2,12 +2,14 @@
 
 import os, yaml, sys, time, json
 from persistencia_pelicula_mysql import Persistencia_pelicula_mysql
+from persistencia_pelicula_pgSQL import Persistencia_pelicula_pgSQL
 from llistapelis import Llistapelis
 import logging
 from pelicula import Pelicula
 
 THIS_PATH = os.path.dirname(os.path.abspath(__file__))
 RUTA_FITXER_CONFIGURACIO = os.path.join(THIS_PATH, 'configuracio.yml') 
+RUTA_FITXER_CONFIGURACIOPGSQL = os.path.join(THIS_PATH, 'configuracio copy.yml') 
 print(RUTA_FITXER_CONFIGURACIO)
 
 def get_configuracio(ruta_fitxer_configuracio) -> dict:
@@ -26,6 +28,15 @@ def get_persistencies(conf: dict) -> dict:
         return {
             'pelicula': Persistencia_pelicula_mysql(credencials)
         }
+    elif conf["base de dades"]["motor"].lower().strip() == "psql":
+        credencials['host'] = conf["base de dades"]["host"]
+        credencials['user'] = conf["base de dades"]["user"]
+        credencials['password'] = conf["base de dades"]["password"]
+        credencials['database'] = conf["base de dades"]["database"]
+        return {
+            'pelicula': Persistencia_pelicula_pgSQL(credencials)
+        }
+        
     else:
         return {
             'pelicula': None
@@ -59,14 +70,18 @@ def mostra_llista(llistapelicula):
     os.system('clear')
     mostra_lent(json.dumps(json.loads(llistapelicula.toJSON()), indent=4), v=0.01)
 
-def inserir():
+def inserir(bd):
     pelicula = input("Introdueix el titol de la pelicula:\n")
     any = int(input("Introdueix l'any de la pelicula:\n"))
     puntuacio = float(input("Introdueix la puntuació:\n"))
     vots = int(input("Introdueix la quantitat de vots:\n"))
-
     inserir = Pelicula(pelicula,any,puntuacio,vots,"","")
-    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+
+    if(bd == "2"):
+        la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIOPGSQL)
+    else:
+        la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+        
     persistencies = get_persistencies(la_meva_configuracio)
     bd = persistencies["pelicula"]
     bd.desa(inserir)
@@ -75,21 +90,31 @@ def inserir():
 def mostra_seguents(llistapelicula):
     os.system('clear')
 
-def update():
+def update(bd):
     id = int(input("Inserta el ID de la pelicula que desitjes canviar:\n"))
     pelicula = input("Introdueix el titol de la pelicula:\n")
     any = int(input("Introdueix l'any de la pelicula:\n"))
     puntuacio = float(input("Introdueix la puntuació:\n"))
     vots = int(input("Introdueix la quantitat de vots:\n"))
     inserir = Pelicula(pelicula,any,puntuacio,vots,"",id)
-    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+
+    if(bd == "2"):
+        la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIOPGSQL)
+    else:
+        la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+
     persistencies = get_persistencies(la_meva_configuracio)
     bd = persistencies["pelicula"]
     bd.canvia(inserir)
     
-def buscar():
+def buscar(bd):
     any = int(input("Introdueix l'any de la pelicula:\n"))
-    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+
+    if(bd == "2"):
+        la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIOPGSQL)
+    else:
+        la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+
     persistencies = get_persistencies(la_meva_configuracio)
     bd = persistencies["pelicula"]
     pelis = bd.llegeix(any)
@@ -112,14 +137,19 @@ def procesa_opcio(context):
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
         "1": lambda ctx : mostra_llista(ctx['llistapelis']),
-        "3": lambda ctx : inserir(),
-        "4": lambda ctx : update(),
-        "5": lambda ctx : buscar()
+        "3": lambda ctx : inserir(ctx['bd']),
+        "4": lambda ctx : update(ctx['bd']),
+        "5": lambda ctx : buscar(ctx['bd'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
-def database_read(id:int):
+def database_read(id:int,bd):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+
+    if(bd == "2"):
+        la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIOPGSQL)
+    else:
+        la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
         persistencia_pelicula=persistencies['pelicula']
@@ -129,29 +159,36 @@ def database_read(id:int):
 
 def bucle_principal(context):
     opcio = None
-    
-    
-
-    while opcio != '0':
-        mostra_menu()
+    escull_base_dades()
+    bd = input()
+    context["bd"] = bd
+    context["opcio"]=-1
+    os.system("clear")
+    while opcio != '0': 
+        if context["opcio"] != '1':     
+            mostra_menu()
         opcio = input("Selecciona una opció: ")
         context["opcio"] = opcio
         
         if context["opcio"] == '1':
             id = None
-            films = database_read(id)
+            films = database_read(id,context["bd"])
             context["llistapelis"] = films
 
         elif context["opcio"] == '2':
             id = films.ult_id
-            films = database_read(id)
+            films = database_read(id,context["bd"])
             context["llistapelis"] = films
             context["opcio"] = '1'
         procesa_opcio(context)
         
         if context["opcio"]=='1':
             mostra_menu_next10()
-        
+
+def escull_base_dades():
+    print("Escull quina base de dades vols utilitzar: ")
+    print("1.MySQL")
+    print("2.PostgreSQL")        
 
 
 def main():
