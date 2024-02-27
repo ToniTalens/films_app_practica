@@ -83,12 +83,12 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
-    def llegeix(self, any: int) -> Pelicula:
+    def llegeix(self, any: int) -> list[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
-        query = f"SELECT id, titulo, anyo, puntuacion, votos from PELICULA WHERE anyo = {any};"
-        cursor.execute(query)
-        #cursor.commit()
+        query = "SELECT * FROM PELICULA WHERE anyo = %s;"
+        cursor.execute(query, (any,))    
         registres = cursor.fetchall()
+        cursor.reset()
         resultat = []
         for registre in registres:
             pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])

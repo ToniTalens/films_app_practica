@@ -92,16 +92,14 @@ def procesa_opcio(context):
         "6": lambda ctx : mostra_llista(ctx['llistapelis'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
-def database_read(id:int=None, context:dict=None, any:int = None) -> None:
+def database_read(id:int=None, context:dict=None, any:int = None):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
         persistencia_pelicula=persistencies["pelicula"]
     )
-    print(context)
     if context["opcio"] == '1' or context["opcio"] == '2' or context["opcio"] == '3' or context["opcio"] == '4' or context["opcio"] == '5' or context["opcio"] == '6':
-        
         films.llegeix_de_disc(id=id, context=context, any=any)
     #if context["opcio"] == '1' or context["opcio"] == '2':
     #    films.llegeix_de_disc(id, context)
@@ -154,7 +152,7 @@ def bucle_principal(context):
 
         elif context["opcio"] == '6':
             id=None
-            any = int(input("Introdueix l'any per consultar les pel·lícules que hi van sortir: "))
+            any = input("Introdueix l'any per consultar les pel·lícules que hi van sortir: ")
             films = database_read(id, context, any)
             context["llistapelis"] = films
         procesa_opcio(context)
