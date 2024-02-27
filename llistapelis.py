@@ -43,6 +43,7 @@ class Llistapelis():
             self._pelicules = self.persistencia_pelicula.totes_pag(id)
         elif context["opcio"] == '5':
             self._pelicules = self.persistencia_pelicula.totes()
+            self._ult_id = max(pelicula.id for pelicula in self.pelicules) if self._pelicules else 0
         elif context["opcio"] == '3':
             self._pelicules = self.persistencia_pelicula.desa()
         elif context["opcio"] == '4':
