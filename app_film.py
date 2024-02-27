@@ -92,14 +92,14 @@ def procesa_opcio(context):
         "6": lambda ctx : mostra_llista(ctx['llistapelis'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
-def database_read(id:int=None, context:dict=None, any:int= None, peli:list=None):
+def database_read(id:int=None, context:dict=None, any:int= None, peli:list=None, peli2:list=None):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
         persistencia_pelicula=persistencies["pelicula"]
     )
-    films.llegeix_de_disc(id=id, context=context, any=any, peli=peli)
+    films.llegeix_de_disc(id=id, context=context, any=any, peli=peli, peli2=peli2)
     return films
 
 def bucle_principal(context):
@@ -136,18 +136,20 @@ def bucle_principal(context):
             context["llistapelis"] = films
 
         elif context["opcio"] == '4':
-            films = database_read(context)
+            puntuacio2 = float(input("Introdueix la nova puntuació: "))
+            vots2 = int(input("Introdueix la nova quantitat de vots: "))
+            peli2=[]
+            peli2.append(puntuacio2), peli2.append(vots2)
+            films = database_read(context=context, peli2=peli2)
             context["llistapelis"] = films
 
         elif context["opcio"] == '5':
-            id = None
-            films = database_read(id, context)
+            films = database_read(context=context)
             context["llistapelis"] = films
 
         elif context["opcio"] == '6':
-            id=None
             any = input("Introdueix l'any per consultar les pel·lícules que hi van sortir: ")
-            films = database_read(id, context, any)
+            films = database_read(context=context, any=any)
             context["llistapelis"] = films
         procesa_opcio(context)
         a += 1
