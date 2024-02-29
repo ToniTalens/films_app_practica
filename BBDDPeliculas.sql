@@ -6,7 +6,7 @@ DROP TABLE ACTOR;
 DROP TABLE PELICULA;
 
 CREATE TABLE PELICULA(
-	ID integer primary key,          
+	ID integer primary key auto_increment,          
 	TITULO VARCHAR(70),     
 	ANYO integer,    
 	PUNTUACION float,    
