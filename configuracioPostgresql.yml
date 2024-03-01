@@ -1,0 +1,7 @@
+
+base de dades:
+    motor: postgresql
+    host: localhost
+    user:  dam_app
+    password: "1234"
+    database: pelis

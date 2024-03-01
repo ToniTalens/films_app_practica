@@ -4,16 +4,27 @@ import os, yaml, sys, time, json
 from persistencia_pelicula_mysql import Persistencia_pelicula_mysql
 from llistapelis import Llistapelis
 import logging
+from persistencia_pelicula_postgresql import Persistencia_pelicula_postgresql
+import psycopg
 
 THIS_PATH = os.path.dirname(os.path.abspath(__file__))
 RUTA_FITXER_CONFIGURACIO = os.path.join(THIS_PATH, 'configuracio.yml') 
+RUTA_FITXER_POSTGRESQL = os.path.join(THIS_PATH, 'configuracioPostgresql.yml')
 print(RUTA_FITXER_CONFIGURACIO)
+print(RUTA_FITXER_POSTGRESQL)
 
 def get_configuracio(ruta_fitxer_configuracio) -> dict:
     config = {}
     with open(ruta_fitxer_configuracio, 'r') as conf:
         config = yaml.safe_load(conf)
     return config
+
+def get_conf_postgre(ruta_fitxer_postgresql) -> dict:
+    config = {}
+    with open(ruta_fitxer_postgresql, 'r') as conn:
+        config = yaml.safe_load(conn)
+    return config
+
 
 def get_persistencies(conf: dict) -> dict:
     credencials = {}
@@ -24,6 +35,21 @@ def get_persistencies(conf: dict) -> dict:
         credencials['database'] = conf["base de dades"]["database"]
         return {
             'pelicula': Persistencia_pelicula_mysql(credencials)
+        }
+    else:
+        return {
+            'pelicula': None
+        }
+
+def get_persistencies_postgresql(conn: dict) -> dict:
+    credencials = {}
+    if conn["base de dades"]["motor"].lower().strip() == "postgresql":
+        credencials['host'] = conn["base de dades"]["host"]
+        credencials['user'] = conn["base de dades"]["user"]
+        credencials['password'] = conn["base de dades"]["password"]
+        credencials['database'] = conn["base de dades"]["database"]
+        return {
+            'pelicula': Persistencia_pelicula_postgresql(credencials)
         }
     else:
         return {
@@ -102,10 +128,30 @@ def database_read(id:int=None, context:dict=None, any:int= None):
     films.llegeix_de_disc(id=id, context=context, any=any)
     return films
 
+def database_read_postgre(id:int=None, context:dict=None, any:int= None):
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_conf_postgre(RUTA_FITXER_POSTGRESQL)
+    persistencies = get_persistencies_postgresql(la_meva_configuracio)
+    films = Llistapelis(
+        persistencia_pelicula=persistencies["pelicula"]
+    )
+    films.llegeix_de_disc(id=id, context=context, any=any)
+    return films
+
 def database_insert(context:dict=None, peli:list=None):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
     persistencies = get_persistencies(la_meva_configuracio)
+    films = Llistapelis(
+        persistencia_pelicula=persistencies["pelicula"]
+    )
+    films.llegeix_de_disc(context=context, peli=peli)
+    return films
+
+def database_insert_postgre(context:dict=None, peli:list=None):
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_conf_postgre(RUTA_FITXER_POSTGRESQL)
+    persistencies = get_persistencies_postgresql(la_meva_configuracio)
     films = Llistapelis(
         persistencia_pelicula=persistencies["pelicula"]
     )
@@ -122,6 +168,17 @@ def database_update(context:dict=None, titol:str=None):
     films.llegeix_de_disc(context=context, titol=titol)
     return films
 
+def database_update_postgre(context:dict=None, titol:str=None):
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_conf_postgre(RUTA_FITXER_POSTGRESQL)
+    persistencies = get_persistencies_postgresql(la_meva_configuracio)
+    films = Llistapelis(
+        persistencia_pelicula=persistencies["pelicula"]
+    )
+    films.llegeix_de_disc(context=context, titol=titol)
+    return films
+
+
 def bucle_principal(context):
     opcio = None
     
@@ -129,39 +186,74 @@ def bucle_principal(context):
     a = 0
 
     while opcio != '0':
+        
         if a is not 0:
             mostra_menu_next10()
         opcio = input("Selecciona una opció: ")
         context["opcio"] = opcio
         
         if context["opcio"] == '1':
+            base=input("Amb quina base de dades vols treballar? mysql[1] o postgresql[2] ")
             id = int(input("Introdueix el id: "))
-            films = database_read(id=id, context=context)
-            context["llistapelis"] = films
+            if base == "1":
+                films = database_read(id=id, context=context)
+                context["llistapelis"] = films
+            elif base == "2":
+                films = database_read_postgre(id=id, context=context)
+                context["llistapelis"] = films
+
         elif context["opcio"] == '2':
+            base=input("Amb quina base de dades vols treballar? mysql[1] o postgresql[2] ")
             id+=10
-            films = database_read(id=id, context=context)
-            context["llistapelis"] = films
+            if base == "1":
+                films = database_read(id=id, context=context)
+                context["llistapelis"] = films
+            elif base == "2":
+                films = database_read_postgre(id=id, context=context)
+                context["llistapelis"] = films
+
         elif context["opcio"] == '3':
+            base=input("Amb quina base de dades vols treballar? mysql[1] o postgresql[2] ")
             titol = input("Nom de la pel·lícula: ")
             anyo = int(input("Any de publicació: "))
             puntuacio = float(input("Puntuació: "))
             vots = int(input("Vots: "))
             peli=[]
             peli.append(titol), peli.append(anyo), peli.append(puntuacio), peli.append(vots)
-            films = database_insert(context=context, peli=peli)
-            context["llistapelis"] = films
+            if base == "1":
+                films = database_insert(context=context, peli=peli)
+                context["llistapelis"] = films
+            elif base == "2":
+                films = database_insert_postgre(context=context, peli=peli)
+                context["llistapelis"] = films
+
         elif context["opcio"] == '4':
+            base=input("Amb quina base de dades vols treballar? mysql[1] o postgresql[2] ")
             titol = input("Introdueix el nom de la pel·lícula que vols modificar: ")
-            films = database_update(context=context, titol=titol)
-            context["llistapelis"] = films
+            if base == "1":
+                films = database_update(context=context, titol=titol)
+                context["llistapelis"] = films
+            elif base == "2":
+                films = database_update_postgre(context=context, titol=titol)
+                context["llistapelis"] = films
         elif context["opcio"] == '5':
-            films = database_read(context=context)
-            context["llistapelis"] = films
+            base=input("Amb quina base de dades vols treballar? mysql[1] o postgresql[2] ")
+            if base == "1":
+                films = database_read(context=context)
+                context["llistapelis"] = films
+            elif base == "2":
+                films = database_read_postgre(context=context)
+                context["llistapelis"] = films
         elif context["opcio"] == '6':
+            base=input("Amb quina base de dades vols treballar? mysql[1] o postgresql[2] ")
             any = input("Introdueix l'any per consultar les pel·lícules que hi van sortir: ")
-            films = database_read(context=context, any=any)
-            context["llistapelis"] = films
+            if base == "1":
+                films = database_read(context=context, any=any)
+                context["llistapelis"] = films
+            elif base == "2":
+                films = database_read_postgre(context=context, any=any)
+                context["llistapelis"] = films
+ 
         procesa_opcio(context)
         a += 1
 

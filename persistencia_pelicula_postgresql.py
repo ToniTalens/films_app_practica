@@ -3,13 +3,13 @@
 from ipersistencia_pelicula import IPersistencia_pelicula
 from pelicula import Pelicula
 from typing  import List
-import mysql.connector
 import logging
+import psycopg
 
-class Persistencia_pelicula_mysql(IPersistencia_pelicula):
+class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
     def __init__(self, credencials) -> None:
         self._credencials = credencials
-        self._conn = mysql.connector.connect(
+        self._conn = psycopg.connect(
                 host=credencials["host"],
                 user=credencials["user"],
                 password=credencials["password"],
@@ -19,12 +19,9 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             self.create_table()
 
     def check_table(self):
-        try:
-            cursor = self._conn.cursor(buffered=True)
-            cursor.execute("SELECT * FROM PELICULA;")
-            cursor.reset()
-        except mysql.connector.errors.ProgrammingError:
-            return False
+        cursor = self._conn.cursor(buffered=True)
+        cursor.execute("SELECT * FROM PELICULA;")
+        cursor.reset()
         return True
     
     def count(self) -> int:
