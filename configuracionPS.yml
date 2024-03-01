@@ -1,0 +1,6 @@
+base_de_dades:
+    motor: postgresql
+    host: localhost
+    user: anthony
+    password: 1234
+    database: pelis

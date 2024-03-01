@@ -42,3 +42,9 @@ class Llistapelis():
         else:
             self._ult_id = id
 
+    def llegeix_de_disc(self, id: int = None):
+        self._pelicules = self._persistencia_pelicula.totes_pag(id)
+        if self._pelicules:
+            self._ult_id = self._pelicules[-1].id
+        else:
+            self._ult_id = id
