@@ -88,8 +88,13 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                 print("Ho sento, aquesta pel·lícula ja està dins de la base de dades. ")
                 a+=1
             else:
-                query = "INSERT INTO PELICULA (TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s);"
-                pel = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
+                query2 = "SELECT id FROM PELICULA ORDER BY id DESC LIMIT 1;"
+                cursor.execute(query2)
+                registres = cursor.fetchall()
+                idStr = str(registres[0])
+                idFinal = int(idStr.strip('(,)')) + 1
+                query = "INSERT INTO PELICULA (ID, TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s, %s);"
+                pel = (idFinal, pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
                 cursor.execute(query, pel)
                 self._conn.commit()
                 cursor.execute("SELECT * FROM PELICULA ORDER BY ID desc LIMIT 1;")

@@ -91,6 +91,7 @@ def mostra_seguents(llistapelicula):
 def mostra_menu():
     print("0.- Surt de l'aplicació.")
     print("1.- Mostra les primeres 10 pel·lícules")
+    print("2.- Mostra les següents 10 pel·lícules (Només si ja has escollit la primera opció)")
     print("3.- Insereix una nova pel·lícula")
     print("4.- Modifica una pel·lícula existent")
     print("5.- Consulta totes les pel·lícules")
@@ -100,7 +101,7 @@ def mostra_menu():
 
 def mostra_menu_next10():
     print("0.- Surt de l'aplicació.")
-    print("2.- Mostra les següents 10 pel·lícules")
+    print("2.- Mostra les següents 10 pel·lícules (Només si ja has escollit la primera opció)")
     print("3.- Insereix una nova pel·lícula")
     print("4.- Modifica una pel·lícula existent")
     print("5.- Consulta totes les pel·lícules")
@@ -194,22 +195,24 @@ def bucle_principal(context):
         
         if context["opcio"] == '1':
             base=input("Amb quina base de dades vols treballar? mysql[1] o postgresql[2] ")
-            id = int(input("Introdueix el id: "))
             if base == "1":
-                films = database_read(id=id, context=context)
+                idmysql = int(input("Introdueix el id: (mysql)"))
+                films = database_read(id=idmysql, context=context)
                 context["llistapelis"] = films
             elif base == "2":
-                films = database_read_postgre(id=id, context=context)
+                idpost = int(input("Introdueix el id: (mysql)"))
+                films = database_read_postgre(id=idpost, context=context)
                 context["llistapelis"] = films
 
         elif context["opcio"] == '2':
             base=input("Amb quina base de dades vols treballar? mysql[1] o postgresql[2] ")
-            id+=10
             if base == "1":
-                films = database_read(id=id, context=context)
+                idmysql+=10
+                films = database_read(id=idmysql, context=context)
                 context["llistapelis"] = films
             elif base == "2":
-                films = database_read_postgre(id=id, context=context)
+                idpost+=10
+                films = database_read_postgre(id=idpost, context=context)
                 context["llistapelis"] = films
 
         elif context["opcio"] == '3':
