@@ -105,12 +105,21 @@ def database_read(id:int=None, context:dict=None, any:int= None):
 def database_insert(context:dict=None, peli:list=None):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
-    print(peli)
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
         persistencia_pelicula=persistencies["pelicula"]
     )
     films.llegeix_de_disc(context=context, peli=peli)
+    return films
+
+def database_update(context:dict=None, titol:str=None):
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    persistencies = get_persistencies(la_meva_configuracio)
+    films = Llistapelis(
+        persistencia_pelicula=persistencies["pelicula"]
+    )
+    films.llegeix_de_disc(context=context, titol=titol)
     return films
 
 def bucle_principal(context):
@@ -126,16 +135,13 @@ def bucle_principal(context):
         context["opcio"] = opcio
         
         if context["opcio"] == '1':
-            #id = None
             id = int(input("Introdueix el id: "))
-            films = database_read(id, context)
+            films = database_read(id=id, context=context)
             context["llistapelis"] = films
-
         elif context["opcio"] == '2':
             id+=10
-            films = database_read(id, context)
+            films = database_read(id=id, context=context)
             context["llistapelis"] = films
-        
         elif context["opcio"] == '3':
             titol = input("Nom de la pel·lícula: ")
             anyo = int(input("Any de publicació: "))
@@ -145,20 +151,13 @@ def bucle_principal(context):
             peli.append(titol), peli.append(anyo), peli.append(puntuacio), peli.append(vots)
             films = database_insert(context=context, peli=peli)
             context["llistapelis"] = films
-
         elif context["opcio"] == '4':
-            #nom = input("Introdueix el nom de la pel·lícula que vols mo)
-            puntuacio2 = float(input("Introdueix la nova puntuació: "))
-            vots2 = int(input("Introdueix la nova quantitat de vots: "))
-            peli2=[]
-            peli2.append(puntuacio2), peli2.append(vots2)
-            films = database_read(context=context, peli2=peli2)
+            titol = input("Introdueix el nom de la pel·lícula que vols modificar: ")
+            films = database_update(context=context, titol=titol)
             context["llistapelis"] = films
-
         elif context["opcio"] == '5':
             films = database_read(context=context)
             context["llistapelis"] = films
-
         elif context["opcio"] == '6':
             any = input("Introdueix l'any per consultar les pel·lícules que hi van sortir: ")
             films = database_read(context=context, any=any)

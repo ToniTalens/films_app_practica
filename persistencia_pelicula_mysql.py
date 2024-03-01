@@ -66,25 +66,41 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
                 resultat.append(pelicula)
         return resultat
     
-    def desa(self,pelicula:Pelicula) -> Pelicula:
-        cursor = self._conn.cursor(buffered=True)
-        query = "SELECT TITULO FROM PELICULA WHERE TITULO = %s;"
-        cursor.execute(query, (pelicula.titol,))
-        myresult = cursor.fetchall()
-        if myresult:
-            return print("Ho sento, aquesta pel·lícula ja està dins de la base de dades. ")
-        else:
-            query = "INSERT INTO PELICULA (TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s);"
-            pel = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
-            cursor.execute(query, pel)
-            cursor.execute("SELECT * FROM PELICULA ORDER BY ID desc LIMIT 1;")
-            registres = cursor.fetchall()
+    def desa(self,pelicula:Pelicula):
+        a=0
+        while True:
+            if a != 0:
+                cont=input("Vols provar d'inserir una nova pel·lícula? [si] o [no] ")
+                if cont == "si":
+                    titol=input("Introdueix el nom de la pel·lícula que vols inserir dins la base de dades: ")
+                    any = int(input("Introdueix l'any: "))
+                    puntuacio=float(input("Puntuació: "))
+                    vots = int(input("Vots totals: "))
+                    pelicula = Pelicula(titol, any, puntuacio, vots, self)
+                elif cont == "no":
+                    return pelicula
+
+            cursor = self._conn.cursor(buffered=True)
+            query = "SELECT TITULO FROM PELICULA WHERE TITULO = %s;"
+            cursor.execute(query, (pelicula.titol,))
+            myresult = cursor.fetchone()
             cursor.reset()
-            peli=[]
-            for p in registres:
-                pelicula = Pelicula(p[1],p[2],p[3],p[4],self,p[0])
-                peli.append(pelicula)
-            return peli
+            if myresult:
+                print("Ho sento, aquesta pel·lícula ja està dins de la base de dades. ")
+                a+=1
+            else:
+                query = "INSERT INTO PELICULA (TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s);"
+                pel = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
+                cursor.execute(query, pel)
+                self._conn.commit()
+                cursor.execute("SELECT * FROM PELICULA ORDER BY ID desc LIMIT 1;")
+                registres = cursor.fetchall()
+                cursor.reset()
+                peli=[]
+                for p in registres:
+                    pelicula = Pelicula(p[1],p[2],p[3],p[4],self,p[0])
+                    peli.append(pelicula)
+                return peli
     
     def llegeix(self, any) -> list[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
@@ -98,18 +114,50 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
-    def canvia(self,pelicula:Pelicula) -> Pelicula:
-        cursor = self._conn.cursor(buffered=True)
-        query = "UPDATE PELICULA set titulo = %s, anyo = %s, puntuacion = %s, votos = %s WHERE id = %s;"
-        pel = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots, pelicula.id)
-        cursor.execute(query, pel)
-        cursor.commit()
-        registres = cursor.fetchone()
-        resultat = []
-        for registre in registres:
-            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
-            resultat.append(pelicula)
-        return resultat
+    def canvia(self,titol:str) -> Pelicula:
+        a=0
+        while True:
+            if a != 0:
+                cont=input("Vols modificar una pel·lícula? [si] o [no] ")
+                if cont == "si":
+                    titol=input("Introdueix el nom de la pel·lícula que vols inserir dins la base de dades: ")
+                elif cont == "no":
+                    return pelicula
+
+            cursor = self._conn.cursor(buffered=True)
+            query = "SELECT TITULO FROM PELICULA WHERE TITULO = %s;"
+            cursor.execute(query, (pelicula.titol,))
+            myresult = cursor.fetchone()
+            cursor.reset()
+            if myresult:
+                cursor = self._conn.cursor(buffered=True)
+                modifica=input("Què vols modificiar de la pel·lícula? any[1], puntuació[2] o vots[3]")
+                if modifica == "1":
+                    any=int(input("Introdueix el nou any: "))
+                    query = "UPDATE PELICULA set anyo = %s WHERE titulo = %s;"
+                    cursor.execute(query, (any, pelicula.titol,))
+                    self._conn.commit()
+                elif modifica == "2":
+                    puntuacio=float(input("Introdueix la nova puntuació: "))
+                    query = "UPDATE PELICULA set puntuacion = %s WHERE titulo = %s;"
+                    cursor.execute(query, (puntuacio, pelicula.titol,))
+                    self._conn.commit()
+                elif modifica == "3":
+                    vots=int(input("Introdueix la nova quantitat de vots: "))
+                    query = "UPDATE PELICULA set votos = %s WHERE titulo = %s;"
+                    cursor.execute(query, (vots, pelicula.titol,))
+                    self._conn.commit()
+                registres = cursor.fetchone()
+                resultat = []
+                for registre in registres:
+                    pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+                    resultat.append(pelicula)
+                return resultat
+            else:
+                print("Ho sento, aquesta pel·lícula no està dins de la base de dades. ")
+                a+=1
+                
+        
     
     
     
