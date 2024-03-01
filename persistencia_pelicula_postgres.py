@@ -3,17 +3,17 @@
 from ipersistencia_pelicula import IPersistencia_pelicula
 from pelicula import Pelicula
 from typing  import List
-import mysql.connector
+import psycopg
 import logging
 
-class Persistencia_pelicula_mysql(IPersistencia_pelicula):
+class Persistencia_pelicula_postgres(IPersistencia_pelicula):
     def __init__(self, credencials) -> None:
         self._credencials = credencials
-        self._conn = mysql.connector.connect(
+        self._conn = psycopg.connect(
                 host=credencials["host"],
                 user=credencials["user"],
                 password=credencials["password"],
-                database=credencials["database"]
+                db=credencials["db"]
                 )
         if not self.check_table():
             self.create_table()
@@ -23,7 +23,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             cursor = self._conn.cursor(buffered=True)
             cursor.execute("SELECT * FROM PELICULA;")
             cursor.reset()
-        except mysql.connector.errors.ProgrammingError:
+        except psycopg.errors.ProgrammingError:
             return False
         return True
     
@@ -130,37 +130,37 @@ if __name__ == "__main__":
         "host" : "localhost" ,
         "user" : "dam_app" ,
         "password" : "1234" ,
-        "database" : "pelis"
+        "db" : "pelis"
     }
 
-    pers_films = Persistencia_pelicula_mysql(credencials)
+    pers_films = Persistencia_pelicula_postgres(credencials)
 
-## IN CASE OF VERIFYING THE TESTING ; WE UNCOMMEN THEM :     
+## IN CASE OF VERIFYING THE TESTING ; WE UNCOMMEN THEM :
 
     ## count All the Movies in : 
     #print("The number of movies are : \n",pers_films.count())
 
     ## Show all the movies on console
-    #print("All the movies of the PELICULA table are : \n" , pers_films.totes())
+    # print("All the movies of the PELICULA table are : \n" , pers_films.totes())
 
     ## Movie's Pagination : 
-    #print("The pagination of movies : \n" , pers_films.totes_pag(0))
+    # print("The pagination of movies : \n" , pers_films.totes_pag())
     #pers_films.totes_pag()
 
     ## see All movies on terminal :
-    #print(pers_films.totes())   
+    # print(pers_films.totes())   
 
     ## Insert a new movie and show on terminal : 
-    #m = Pelicula("La sociedad sin nieve",2023,5.0,10000,pers_films)
-    #pers_films.desa(m)
-    #print(" Movie Inserted Successfully .. \n" , m )
+    # m = Pelicula("La sociedad sin nieve",2023,5.0,10000,pers_films)
+    # pers_films.desa(m)
+    # print(" Movie Inserted Successfully .. \n" , m )
 
     ## read movie of a specific year : 
-    #year = 1982
-    #pers_films.llegeix(year)
+    # year = 1982
+    # pers_films.llegeix(year)
 
     ## update a movie
-    #updated = Pelicula("Magic",2011,7.5,1500,pers_films , id= 1695)
-    #update_a_movie = print("Movie Updated : \n" , pers_films.canvia(updated))
+    # updated = Pelicula("Magic",2011,7.5,1500,pers_films , id= 1695)
+    # update_a_movie = print("Movie Updated : \n" , pers_films.canvia(updated))
 
 

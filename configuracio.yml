@@ -1,8 +1,19 @@
+## DEFINING THE MYSQL DATABASE CONFIGURATION
 # configuracio.yml
-# Exemple per a mySql
+Exemple per a mySql
 base de dades:
     motor: mysql
     host: localhost
     user: dam_app
-    password: 1234
+    password: '1234'
     database: pelis
+
+
+## DEFINING THE POSTGRES DATABASE CONFIGURATION
+# Exemple per a Postgres
+# base de dades:
+#    motor: Postgres
+#   host: localhost
+#    user: dam_app
+#    password: '1234'
+#    db: pelis

@@ -35,12 +35,25 @@ class Llistapelis():
             }   
         return json.dumps(self_dict)
 
-    def llegeix_de_disc(self,id:int):
+    """ Reads movies from the database with pagination 
+        and updates the movie list."""
+    def llegeix_de_disc(self,id:int=None):
         self._pelicules = self._persistencia_pelicula.totes_pag(id)
-        #falta codi
-        self._ult_id = self._pelicules[-1].id
-        #falta codi
+        if self._pelicules:
+            self._ult_id = self._pelicules[-1].id
 
-    def totes_pag(self, id: int) -> dict:
-        return self._persistencia_pelicula.totes_pag(id)
+    def llegeix(self, any: int) -> List[Pelicula]:
+        return self._persistencia_pelicula.llegeix(any)
+    
+    def canvia(self,pelicula:Pelicula) -> Pelicula:
+        return self._persistencia_pelicula.canvia(pelicula)
+    
+    def desa(self,pelicula:Pelicula) -> Pelicula:
+        return self.persistencia_pelicula.desa(pelicula)
+    
+    def totes(self) -> List[Pelicula]:
+        return self._persistencia_pelicula.totes()
+
+    def count(self) -> int:
+        return self._persistencia_pelicula.count()
     
