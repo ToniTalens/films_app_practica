@@ -13,30 +13,30 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                 host=credencials["host"],
                 user=credencials["user"],
                 password=credencials["password"],
-                database=credencials["database"]
+                dbname=credencials["dbname"]
                 )
         if not self.check_table():
             self.create_table()
 
     def check_table(self):
-        cursor = self._conn.cursor(buffered=True)
+        cursor = self._conn.cursor()
         cursor.execute("SELECT * FROM PELICULA;")
-        cursor.reset()
+        cursor._reset()
         return True
     
     def count(self) -> int:
-        cursor = self._conn.cursor(buffered=True)
+        cursor = self._conn.cursor()
         query = "select id, titulo, anyo, puntuacion, votos from PELICULA;"
         cursor.execute(query)
         count = cursor.rowcount
         return count
     
     def totes(self) -> List[Pelicula]:
-        cursor = self._conn.cursor(buffered=True)
+        cursor = self._conn.cursor()
         query = "select * from PELICULA;"
         cursor.execute(query)
         registres = cursor.fetchall()
-        cursor.reset()
+        cursor._reset()
         resultat = []
         for registre in registres:
             pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
@@ -44,11 +44,12 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
         return resultat
     
     def totes_pag(self, id) -> List[Pelicula]:
-        cursor = self._conn.cursor(buffered=True)
+        cursor = self._conn.cursor()
         if id is None:
             query = "SELECT * FROM PELICULA LIMIT 10;"
             cursor.execute(query)
             registres = cursor.fetchall()
+            cursor._reset()
             resultat = []
             for registre in registres:
                 pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
@@ -57,6 +58,7 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
             query = f"SELECT * FROM PELICULA WHERE id >= '{id}' LIMIT 10;"
             cursor.execute(query)
             registres = cursor.fetchall()
+            cursor._reset()
             resultat = []
             for registre in registres:
                 pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
@@ -77,11 +79,11 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                 elif cont == "no":
                     return pelicula
 
-            cursor = self._conn.cursor(buffered=True)
+            cursor = self._conn.cursor()
             query = "SELECT TITULO FROM PELICULA WHERE TITULO = %s;"
             cursor.execute(query, (pelicula.titol,))
             myresult = cursor.fetchone()
-            cursor.reset()
+            cursor._reset()
             if myresult:
                 print("Ho sento, aquesta pel·lícula ja està dins de la base de dades. ")
                 a+=1
@@ -92,7 +94,7 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                 self._conn.commit()
                 cursor.execute("SELECT * FROM PELICULA ORDER BY ID desc LIMIT 1;")
                 registres = cursor.fetchall()
-                cursor.reset()
+                cursor._reset()
                 peli=[]
                 for p in registres:
                     pelicula = Pelicula(p[1],p[2],p[3],p[4],self,p[0])
@@ -100,11 +102,11 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                 return peli
     
     def llegeix(self, any) -> list[Pelicula]:
-        cursor = self._conn.cursor(buffered=True)
+        cursor = self._conn.cursor()
         query = f"SELECT * FROM PELICULA WHERE anyo = '{any}';"
         cursor.execute(query)  
         registres = cursor.fetchall()
-        cursor.reset()
+        cursor._reset()
         resultat = []
         for registre in registres:
             pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
@@ -117,15 +119,15 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
             if a != 0:
                 titol=input("Introdueix el nom de la pel·lícula que vols modificar dins la base de dades: ")
                 
-            cursor = self._conn.cursor(buffered=True)
+            cursor = self._conn.cursor()
             query = "SELECT * FROM PELICULA WHERE TITULO = %s;"
             cursor.execute(query, (titol,))
             myresult = cursor.fetchone()
-            cursor.reset()
+            cursor._reset()
             if myresult:
                 print("La pel·lícula existeix ")
                 print(myresult)
-                cursor = self._conn.cursor(buffered=True)
+                cursor = self._conn.cursor()
                 modifica=input("Què vols modificiar de la pel·lícula? any[1], puntuació[2] o vots[3]")
                 if modifica == "1":
                     any=int(input("Introdueix el nou any: "))
@@ -135,6 +137,7 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                     query2="SELECT * FROM PELICULA WHERE titulo = %s"
                     cursor.execute(query2, (titol,))
                     registres = cursor.fetchall()
+                    cursor._reset()
                     peli = []
                     for registre in registres:
                         pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
@@ -148,6 +151,7 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                     query2="SELECT * FROM PELICULA WHERE titulo = %s"
                     cursor.execute(query2, (titol,))
                     registres = cursor.fetchall()
+                    cursor._reset()
                     peli = []
                     for registre in registres:
                         pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
@@ -161,6 +165,7 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                     query2="SELECT * FROM PELICULA WHERE titulo = %s"
                     cursor.execute(query2, (titol,))
                     registres = cursor.fetchall()
+                    cursor._reset()
                     peli = []
                     for registre in registres:
                         pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])

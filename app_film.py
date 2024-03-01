@@ -47,7 +47,7 @@ def get_persistencies_postgresql(conn: dict) -> dict:
         credencials['host'] = conn["base de dades"]["host"]
         credencials['user'] = conn["base de dades"]["user"]
         credencials['password'] = conn["base de dades"]["password"]
-        credencials['database'] = conn["base de dades"]["database"]
+        credencials['dbname'] = conn["base de dades"]["dbname"]
         return {
             'pelicula': Persistencia_pelicula_postgresql(credencials)
         }

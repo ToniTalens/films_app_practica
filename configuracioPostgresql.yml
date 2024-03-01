@@ -4,4 +4,4 @@ base de dades:
     host: localhost
     user:  dam_app
     password: "1234"
-    database: pelis
+    dbname: pelis
