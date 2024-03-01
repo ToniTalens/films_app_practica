@@ -92,14 +92,25 @@ def procesa_opcio(context):
         "6": lambda ctx : mostra_llista(ctx['llistapelis'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
-def database_read(id:int=None, context:dict=None, any:int= None, peli:list=None, peli2:list=None):
+def database_read(id:int=None, context:dict=None, any:int= None):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
         persistencia_pelicula=persistencies["pelicula"]
     )
-    films.llegeix_de_disc(id=id, context=context, any=any, peli=peli, peli2=peli2)
+    films.llegeix_de_disc(id=id, context=context, any=any)
+    return films
+
+def database_insert(context:dict=None, peli:list=None):
+    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
+    print(peli)
+    persistencies = get_persistencies(la_meva_configuracio)
+    films = Llistapelis(
+        persistencia_pelicula=persistencies["pelicula"]
+    )
+    films.llegeix_de_disc(context=context, peli=peli)
     return films
 
 def bucle_principal(context):
@@ -132,10 +143,11 @@ def bucle_principal(context):
             vots = int(input("Vots: "))
             peli=[]
             peli.append(titol), peli.append(anyo), peli.append(puntuacio), peli.append(vots)
-            films = database_read(context=context, peli=peli)
+            films = database_insert(context=context, peli=peli)
             context["llistapelis"] = films
 
         elif context["opcio"] == '4':
+            #nom = input("Introdueix el nom de la pel·lícula que vols mo)
             puntuacio2 = float(input("Introdueix la nova puntuació: "))
             vots2 = int(input("Introdueix la nova quantitat de vots: "))
             peli2=[]

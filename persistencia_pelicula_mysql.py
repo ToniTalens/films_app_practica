@@ -68,17 +68,23 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     
     def desa(self,pelicula:Pelicula) -> Pelicula:
         cursor = self._conn.cursor(buffered=True)
-        query = "INSERT INTO PELICULA (TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s);"
-        pel = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
-        cursor.execute(query, pel)
-        cursor.execute("SELECT * FROM PELICULA ORDER BY ID desc LIMIT 1;")
-        registres = cursor.fetchall()
-        cursor.reset()
-        peli=[]
-        for p in registres:
-            pelicula = Pelicula(p[1],p[2],p[3],p[4],self,p[0])
-            peli.append(pelicula)
-        return peli
+        query = "SELECT TITULO FROM PELICULA WHERE TITULO = %s;"
+        cursor.execute(query, (pelicula.titol,))
+        myresult = cursor.fetchall()
+        if myresult:
+            return print("Ho sento, aquesta pel·lícula ja està dins de la base de dades. ")
+        else:
+            query = "INSERT INTO PELICULA (TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s);"
+            pel = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
+            cursor.execute(query, pel)
+            cursor.execute("SELECT * FROM PELICULA ORDER BY ID desc LIMIT 1;")
+            registres = cursor.fetchall()
+            cursor.reset()
+            peli=[]
+            for p in registres:
+                pelicula = Pelicula(p[1],p[2],p[3],p[4],self,p[0])
+                peli.append(pelicula)
+            return peli
     
     def llegeix(self, any) -> list[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
@@ -108,3 +114,10 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     
     
     
+
+#    def existeix(self, input6):
+#        cursor = self._conn.cursor(buffered=True)
+#        query = "SELECT id, titulo, anyo, puntuacion, votos from PELICULA WHERE titulo = '%s';"
+#        cursor.execute(query, input6)
+#        myresult = cursor.fetchall()
+#        return myresult
