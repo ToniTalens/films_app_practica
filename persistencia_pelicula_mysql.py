@@ -47,17 +47,74 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         return resultat
     
     def totes_pag(self, id=None) -> List[Pelicula]:
-        pass
-        #falta codi
+        mycursor = self._conn.cursor(buffered=True)
+        peliculas = []
+        if id is not None:
+            mycursor.execute("SELECT * FROM PELICULA WHERE ID = %s LIMIT 10", (id,))
+        else:
+            mycursor.execute("SELECT * FROM PELICULA")
+        for x in mycursor:
+            pelicula = Pelicula(x[0], x[1], x[2], x[3])
+            peliculas.append(pelicula)
+        return peliculas 
+        
+    def desa(self, pelicula: Pelicula) -> Pelicula:
+        try:
+            mycursor = self._conn.cursor(buffered=True)
+            
+            # Verificar si la película ya existe
+            mycursor.execute("SELECT * FROM PELICULA WHERE TITULO = %s", (pelicula.titol,))
+            existPelicula = mycursor.fetchone()
+
+            if not existPelicula:
+                # Insertar la película si no existe
+                query = "INSERT INTO PELICULA (TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s)"
+                values = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
+                mycursor.execute(query, values)
+                self._conn.commit()
+                print("Película insertada")
+            else:
+                print("Este título ya existe. No se permiten títulos duplicados")
+
+            return pelicula
+        except Exception as e:
+            # Manejar cualquier excepción que pueda ocurrir
+            print(f"Error al insertar la película: {e}")
+            self._conn.rollback()
     
-    def desa(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
+    def llegeix(self, any: int) -> List[Pelicula]:
+        mycursor = self._conn.cursor(buffered=True)
+        mycursor.execute("SELECT * FROM PELICULA WHERE ANYO = %s", (any,))
+        peliculas = []
+        for x in mycursor:
+            pelicula = Pelicula(x[0], x[1], x[2], x[3])
+            peliculas.append(pelicula)
+        return peliculas
     
-    def llegeix(self, any: int) -> Pelicula:
-        pass
-        #falta codi
+    def llegeix(self, any: int) -> List[Pelicula]:
+        try:
+            mycursor = self._conn.cursor(buffered=True)
+            mycursor.execute("SELECT * FROM PELICULA WHERE ANYO = %s", (any,))
+            peliculas = []
+            for x in mycursor:
+                pelicula = Pelicula(x[1], x[2], x[3], x[4], id=x[0])  # Crear la película con los datos de la base de datos
+                peliculas.append(pelicula)
+            return peliculas
+        except Exception as e:
+            # Manejar cualquier excepción que pueda ocurrir
+            print(f"Error al leer las películas del año {any}: {e}")
     
-    def canvia(self,pelicula:Pelicula) -> Pelicula:
-        pass
-        #falta codi
+    def canvia(self, pelicula: Pelicula) -> Pelicula:
+        try:
+            mycursor = self._conn.cursor(buffered=True)
+            mycursor.execute("UPDATE PELICULA SET VOTOS = %s WHERE id = %s", (pelicula.vots, pelicula.id))
+            self._conn.commit()
+            print("Número de votos actualizado correctamente")
+            return pelicula
+        except Exception as e:
+            # Manejar cualquier excepción que pueda ocurrir
+            print(f"Error al actualizar el número de votos de la película: {e}")
+            self._conn.rollback()  # Revertir cualquier cambio en caso de error
+            
+
+    
