@@ -1,8 +1,16 @@
 # configuracio.yml
 # Exemple per a mySql
 base de dades:
-    motor: mysql
+    motor: postgresql
     host: localhost
-    user: 
-    password: 
+    user: dam_app
+    password: "1234"
     database: pelis
+
+# base de dades:
+#     motor: mysql
+#     host: localhost
+#     user: dam_app
+#     password: "1234"
+#     database: pelis
+

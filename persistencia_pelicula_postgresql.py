@@ -3,27 +3,25 @@
 from ipersistencia_pelicula import IPersistencia_pelicula
 from pelicula import Pelicula
 from typing  import List
-import mysql.connector
+import psycopg #mirar
 import logging
 
-class Persistencia_pelicula_mysql(IPersistencia_pelicula):
+class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
     def __init__(self, credencials) -> None:
         self._credencials = credencials
-        self._conn = mysql.connector.connect(
+        self._conn = psycopg.connect(
                 host=credencials["host"],
                 user=credencials["user"],
                 password=credencials["password"],
-                database=credencials["database"]
+                dbname=credencials["database"]
                 )
-        if not self.check_table():
-            self.create_table()
 
     def check_table(self):
         try:
             cursor = self._conn.cursor(buffered=True)
             cursor.execute("SELECT * FROM PELICULA;")
             cursor.reset()
-        except mysql.connector.errors.ProgrammingError:
+        except:
             return False
         return True
     
@@ -48,11 +46,11 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
     
     def totes_pag(self, id=None) -> List[Pelicula]:
         # print(self._credencials)
-        cursor = self._conn.cursor(buffered=True)
+        cursor = self._conn.cursor()
         query = f"select id, titulo, anyo, puntuacion, votos from PELICULA WHERE id >= {id} limit 10;"
         cursor.execute(query)
         registres = cursor.fetchall()
-        cursor.reset()
+        cursor._reset()
         resultat = []
         for registre in registres:
             pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
@@ -66,7 +64,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         self._conn.commit()
         cursor.execute(f"select id, titulo, anyo, puntuacion, votos from PELICULA where titulo = '{pelicula.titol}' and anyo = {pelicula.any}")
         registre = cursor.fetchone()
-        cursor.reset()
+        cursor._reset()
         return Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0])
 
     
@@ -75,7 +73,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         query = f"select id, titulo, anyo, puntuacion, votos from PELICULA where anyo = {any};"
         cursor.execute(query)
         registres = cursor.fetchall()
-        cursor.reset()
+        cursor._reset()
         llista = []
         for registre in registres:
             llista.append(Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0]))
@@ -88,5 +86,5 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         self._conn.commit()
         cursor.execute(f"select id, titulo, anyo, puntuacion, votos from PELICULA where id = '{pelicula.id}'")
         registre = cursor.fetchone()
-        cursor.reset()
+        cursor._reset()
         return Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0])
