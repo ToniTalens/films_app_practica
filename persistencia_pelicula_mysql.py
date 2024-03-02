@@ -34,6 +34,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
         count = cursor.rowcount
         return count
     
+    #Retornar totes les pel·lícules
     def totes(self) -> List[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
         query = "select * from PELICULA;"
@@ -46,6 +47,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
+    #Retorna 10 pel·lícules
     def totes_pag(self, id) -> List[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
         if id is None:
@@ -66,19 +68,17 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
                 resultat.append(pelicula)
         return resultat
     
+    #Li arriba com a paràmetre una pel·lícula, si no existeix, fa el insert, si existeix
+    #et dona la possibilitat de tornar a afegir una altre pel·lícula
     def desa(self,pelicula:Pelicula):
         a=0
         while True:
             if a != 0:
-                cont=input("Vols provar d'inserir una nova pel·lícula? [si] o [no] ")
-                if cont == "si":
-                    titol=input("Introdueix el nom de la pel·lícula que vols inserir dins la base de dades: ")
-                    any = int(input("Introdueix l'any: "))
-                    puntuacio=float(input("Puntuació: "))
-                    vots = int(input("Vots totals: "))
-                    pelicula = Pelicula(titol, any, puntuacio, vots, self)
-                elif cont == "no":
-                    return pelicula
+                titol=input("Introdueix el nom de la pel·lícula que vols inserir dins la base de dades: ")
+                any = int(input("Introdueix l'any: "))
+                puntuacio=float(input("Puntuació: "))
+                vots = int(input("Vots totals: "))
+                pelicula = Pelicula(titol, any, puntuacio, vots, self)
 
             cursor = self._conn.cursor(buffered=True)
             query = "SELECT TITULO FROM PELICULA WHERE TITULO = %s;"
@@ -102,6 +102,7 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
                     peli.append(pelicula)
                 return peli
     
+    #Et retorna totes les pel·lícules de l'any que se li passa com a paràmetre
     def llegeix(self, any) -> list[Pelicula]:
         cursor = self._conn.cursor(buffered=True)
         query = f"SELECT * FROM PELICULA WHERE anyo = '{any}';"
@@ -114,6 +115,8 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
+    #Et permet modificar l'any, la puntuació o els vots d'una pel·lícula, si la pel·lícula no existeix
+    #pots buscar-ne una altre
     def canvia(self,titol:str) -> Pelicula:
         a=0
         while True:

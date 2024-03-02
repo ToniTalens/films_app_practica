@@ -19,6 +19,7 @@ def get_configuracio(ruta_fitxer_configuracio) -> dict:
         config = yaml.safe_load(conf)
     return config
 
+#Creació del get_configuracio per postgre
 def get_conf_postgre(ruta_fitxer_postgresql) -> dict:
     config = {}
     with open(ruta_fitxer_postgresql, 'r') as conn:
@@ -41,6 +42,7 @@ def get_persistencies(conf: dict) -> dict:
             'pelicula': None
         }
 
+#Persistencies per postgre, només he modificat el nom del diccionari i el dbname
 def get_persistencies_postgresql(conn: dict) -> dict:
     credencials = {}
     if conn["base de dades"]["motor"].lower().strip() == "postgresql":
@@ -87,7 +89,7 @@ def mostra_llista(llistapelicula):
 def mostra_seguents(llistapelicula):
     os.system('clear')
 
-
+#Totes les opcions del menú, realment ho podria haver fet només amb aquest mètode, no es necessari el mostra_menu_next10()
 def mostra_menu():
     print("0.- Surt de l'aplicació.")
     print("1.- Mostra les primeres 10 pel·lícules")
@@ -98,16 +100,17 @@ def mostra_menu():
     print("6.- Consulta totes les pel·lícules per any")
     
 
-
+#Les mateixes opcions del menú
 def mostra_menu_next10():
     print("0.- Surt de l'aplicació.")
+    print("1.- Mostra les primeres 10 pel·lícules")
     print("2.- Mostra les següents 10 pel·lícules (Només si ja has escollit la primera opció)")
     print("3.- Insereix una nova pel·lícula")
     print("4.- Modifica una pel·lícula existent")
     print("5.- Consulta totes les pel·lícules")
     print("6.- Consulta totes les pel·lícules per any")
 
-
+#He afegit opcions per poder fer les consultes
 def procesa_opcio(context):
     return {
         "0": lambda ctx : mostra_lent("Fins la propera"),
@@ -119,6 +122,7 @@ def procesa_opcio(context):
         "6": lambda ctx : mostra_llista(ctx['llistapelis'])
     }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
+#He creat un database per cada tipus de consulta i per cada tipus de base de dades
 def database_read(id:int=None, context:dict=None, any:int= None):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
@@ -179,7 +183,8 @@ def database_update_postgre(context:dict=None, titol:str=None):
     films.llegeix_de_disc(context=context, titol=titol)
     return films
 
-
+#Dins del bucle pots escollir quin tipus de consulta vols fer i, a més a més, dins de cada tipus de consulta, pots escollir quina base de dades
+#vols per fer la consulta
 def bucle_principal(context):
     opcio = None
     

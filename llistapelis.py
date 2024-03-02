@@ -34,7 +34,7 @@ class Llistapelis():
             "pelicules": pelicules_dict
             }   
         return json.dumps(self_dict)
-
+    #Depenent de la consulta aniràs a un mètode o un altre, independentment de si es mysql o postgresql (no afecta)
     def llegeix_de_disc(self,id:int=None, context=None, any=None, peli:list=None, titol:str=None):
         if context["opcio"] == '1':
             self._pelicules = self.persistencia_pelicula.totes_pag(id)

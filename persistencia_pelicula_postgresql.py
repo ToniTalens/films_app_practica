@@ -31,6 +31,7 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
         count = cursor.rowcount
         return count
     
+    #Retorna totes les pelicules
     def totes(self) -> List[Pelicula]:
         cursor = self._conn.cursor()
         query = "select * from PELICULA;"
@@ -43,6 +44,7 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
+    #Retorna de 10 en 10
     def totes_pag(self, id) -> List[Pelicula]:
         cursor = self._conn.cursor()
         if id is None:
@@ -64,21 +66,18 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                 pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
                 resultat.append(pelicula)
         return resultat
-    
+    #fa un insert, si la pel·lícula ja existeix, dona la possibilitat de tornar-ho a intentar
+    #tantes vegades com volguis, afeguin una nova pel·lícula
     def desa(self,pelicula:Pelicula):
         a=0
         while True:
             if a != 0:
-                cont=input("Vols provar d'inserir una nova pel·lícula? [si] o [no] ")
-                if cont == "si":
-                    titol=input("Introdueix el nom de la pel·lícula que vols inserir dins la base de dades: ")
-                    any = int(input("Introdueix l'any: "))
-                    puntuacio=float(input("Puntuació: "))
-                    vots = int(input("Vots totals: "))
-                    pelicula = Pelicula(titol, any, puntuacio, vots, self)
-                elif cont == "no":
-                    return pelicula
-
+                titol=input("Introdueix el nom de la pel·lícula que vols inserir dins la base de dades: ")
+                any = int(input("Introdueix l'any: "))
+                puntuacio=float(input("Puntuació: "))
+                vots = int(input("Vots totals: "))
+                pelicula = Pelicula(titol, any, puntuacio, vots, self)
+                
             cursor = self._conn.cursor()
             query = "SELECT TITULO FROM PELICULA WHERE TITULO = %s;"
             cursor.execute(query, (pelicula.titol,))
@@ -88,6 +87,8 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                 print("Ho sento, aquesta pel·lícula ja està dins de la base de dades. ")
                 a+=1
             else:
+                #Com a la base de dades no se li va afegir serial, he de buscar l'ùltim id manualment
+                #passar la tupla a un string, i finalment passar-ho a un int, treient-li els () i , i sumar-li 1
                 query2 = "SELECT id FROM PELICULA ORDER BY id DESC LIMIT 1;"
                 cursor.execute(query2)
                 registres = cursor.fetchall()
@@ -97,6 +98,7 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                 pel = (idFinal, pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
                 cursor.execute(query, pel)
                 self._conn.commit()
+                #Aquest consulta és per poder veura com s'ha afegit correctament
                 cursor.execute("SELECT * FROM PELICULA ORDER BY ID desc LIMIT 1;")
                 registres = cursor.fetchall()
                 cursor._reset()
@@ -106,6 +108,7 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
                     peli.append(pelicula)
                 return peli
     
+    #Llegeix per any
     def llegeix(self, any) -> list[Pelicula]:
         cursor = self._conn.cursor()
         query = f"SELECT * FROM PELICULA WHERE anyo = '{any}';"
@@ -118,8 +121,11 @@ class Persistencia_pelicula_postgresql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
+    #Se li passa un titol, comprova si existeix, i si es així, pot modificar-li 1 de les 3 opcions, l'any,
+    #la puntuació o els vots, el id i el títol no te sentit modificar-los (així ho he considerat).
     def canvia(self,titol:str) -> Pelicula:
         a=0
+        #També tens la oportunitat de tornar-ho a intentar per si la pel·lícula buscada no existeix
         while True:
             if a != 0:
                 titol=input("Introdueix el nom de la pel·lícula que vols modificar dins la base de dades: ")
