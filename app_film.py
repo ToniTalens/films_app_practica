@@ -25,6 +25,14 @@ def get_persistencies(conf: dict) -> dict:
         return {
             'pelicula': Persistencia_pelicula_mysql(credencials)
         }
+    elif conf["base de dades"]["motor"].lower().strip() == "postgres":
+        credencials['host'] = conf["base de dades"]["host"]
+        credencials['user'] = conf["base de dades"]["user"]
+        credencials['password'] = conf["base de dades"]["password"]
+        credencials['db'] = conf["base de dades"]["db"]
+        return {
+            'pelicula': Persistencia_pelicula_postgres(credencials)
+        }
     else:
         return {
             'pelicula': None
@@ -40,11 +48,11 @@ def mostra_lent(missatge, v=0.05):
 
 def landing_text():
     os.system('clear')
-    print("Benvingut a la app de pel·lícules")
+    print("Bienvenido/a a la aplicación de películas")
     time.sleep(1)
-    msg = "Desitjo que et sigui d'utilitat!"
+    msg = "¡Deseo que te sea útil!"
     mostra_lent(msg)
-    input("Prem la tecla 'Enter' per a continuar")
+    input("Presiona la tecla 'Enter' para continuar")
     os.system('clear')
 
 def mostra_lent(missatge, v=0.05):
@@ -63,37 +71,44 @@ def mostra_seguents(llistapelicula):
 
 
 def mostra_menu():
-    print("0.- Surt de l'aplicació.")
-    print("1.- Mostra les primeres 10 pel·lícules")
+    print("0.- Salir de la aplicación.")
+    print("1.- Mostrar las primeras 10 películas")
+    print("2.- Mostrar las siguientes 10 próximas películas")
+    print("3.- Contar todas las películas de la base de datos")
+    print("4.- Mostrar todas las películas")
+    print("5.- Insertar una nueva película")
+    print("6.- Recuperar las películas de un año determinado")
+    print("7.- Modificar una película de la base de datos.")
 
 
 def mostra_menu_next10():
-    print("0.- Surt de l'aplicació.")
-    print("2.- Mostra les següents 10 pel·lícules")
+    print("0.- Salir de la aplicación.")
+    print("2.- Mostrar las siguientes 10 películas")
 
 
 def procesa_opcio(context):
     return {
-        "0": lambda ctx : mostra_lent("Fins la propera"),
+        "0": lambda ctx : mostra_lent("Hasta la próxima"),
         "1": lambda ctx : mostra_llista(ctx['llistapelis'])
-    }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
+    }.get(context["opcio"], lambda ctx : mostra_lent("¡Opción incorrecta!"))(context)
 
 def database_read(id:int):
-    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
-    la_meva_configuracio = get_configuracio(--)
-    persistencies = get_persistencies(la_meva_configuracio)
+    logging.basicConfig(filename='peliculas.log', encoding='utf-8', level=logging.DEBUG)
+    la_meva_configuracio = get_configuracio("configuracio.yml")
+    persistencies = la_meva_configuracio["motor"]
     films = Llistapelis(
-        persistencia_pelicula=persistencies['pelicula']
+        persistencia_pelicula = persistencies
     )
-    films.llegeix(id) 
+    films.llegeix_de_disc(id)
     return films
 
 def bucle_principal(context):
     opcio = None
+    
     mostra_menu()
 
     while opcio != '0':
-        opcio = input("Selecciona una opció: ")
+        opcio = input("Selecciona una opción: ")
         context["opcio"] = opcio
         
         if context["opcio"] == '1':
@@ -102,26 +117,36 @@ def bucle_principal(context):
             context["llistapelis"] = films
 
         elif context["opcio"] == '2':
-            if context["llistapelis"]:
-                id = context["llistapelis"].ult_id + 1
-                films = database_read(id)
-                context["llistapelis"].pelicules += films.pelicules
+            id = films.ult_id
+            films = database_read(id)
+            films.pelicules.extend(films.pelicules)
 
+        elif context["opcio"] == '3':
+            Persistencia_pelicula_mysql.count()
+
+        elif context["opcio"] == '4':
+            Persistencia_pelicula_mysql.totes()
+
+        elif context["opcio"] == '5':
+            title = input("Introduce el título : ")
+            anyo = input("Introduce el año de la nueva película : ")
+            score = input("Introduce la puntuación de la nueva película : ")
+            votes = input("Introduce los votos de la nueva película : ")
+            Persistencia_pelicula_mysql.desa(title,anyo,score,votes)
+
+        elif context["opcio"] == '6':
+            year = input("Introduce el año : ")
+            Persistencia_pelicula_mysql.llegeix(year)
+
+        elif context["opcio"] == '7':
+            id_to_update = input("Introduce el id de la película a editar : ")
+            new_title = input("Introduce el título actualizado de la nueva película : ")
+            new_anyo = input("Introduce el año de la nueva película : ")
+            new_score = input("Introduce la puntuación de la nueva película : ")
+            new_votes = input("Introduce los votos de la nueva película : ")
+            Persistencia_pelicula_mysql.canvia(new_title,new_anyo,new_score,new_votes,id_to_update)
+  
         procesa_opcio(context)
-
-def mostra_menu():
-    print("0.- Surt de l'aplicació.")
-    print("1.- Mostra les primeres 10 pel·lícules")
-    print("2.- Mostra les següents 10 pel·lícules")
-    # Altres opcions de menú
-
-def procesa_opcio(context):
-    return {
-        "0": lambda ctx: mostra_lent("Fins la propera"),
-        "1": lambda ctx: mostra_llista(ctx['llistapelis']),
-        # Altres opcions de menú
-    }.get(context["opcio"], lambda ctx: mostra_lent("opció incorrecta!!!"))(context)
-
 
 
 def main():

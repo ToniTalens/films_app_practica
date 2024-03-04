@@ -11,11 +11,6 @@ class Llistapelis():
         self._ult_id = 0
         self._persistencia_pelicula = persistencia_pelicula
         
-    def llegeix_de_disc(self, id: int):
-        self._pelicules = self._persistencia_pelicula.totes_pag(id)
-        self._ult_id = max(pelicula.id for pelicula in self._pelicules) if self._pelicules else 0
-
-        
     @property
     def pelicules(self) -> List[Pelicula]:
         return self._pelicules
@@ -39,8 +34,21 @@ class Llistapelis():
             "pelicules": pelicules_dict
             }   
         return json.dumps(self_dict)
+
+    def llegeix_de_disc(self,id:int):
+        self._pelicules = self._persistencia_pelicula.totes_pag(id)
+        if self._pelicules:
+            self._ult_id = self._pelicules[-1].id
+
+    def canvia(self,pelicula:Pelicula) -> Pelicula:
+        return self._persistencia_pelicula.canvia(pelicula)
     
-def llegeix_de_disc(self, id: int):
-    self._pelicules = self._persistencia_pelicula.totes_pag(id)
-    self._ult_id = max(pelicula.id for pelicula in self._pelicules) if self._pelicules else 0
+    def desa(self,pelicula:Pelicula) -> Pelicula:
+        return self.persistencia_pelicula.desa(pelicula)
+    
+    def totes(self) -> List[Pelicula]:
+        return self._persistencia_pelicula.totes()
+
+    def count(self) -> int:
+        return self._persistencia_pelicula.count()
 

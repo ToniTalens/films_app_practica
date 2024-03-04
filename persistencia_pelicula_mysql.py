@@ -1,5 +1,6 @@
 #!/bin/usr/python3
 
+from sqlite3 import Cursor
 from ipersistencia_pelicula import IPersistencia_pelicula
 from pelicula import Pelicula
 from typing  import List
@@ -46,47 +47,54 @@ class Persistencia_pelicula_mysql(IPersistencia_pelicula):
             resultat.append(pelicula)
         return resultat
     
-def totes_pag(self, id=None) -> List[Pelicula]:
-    cursor = self._conn.cursor(buffered=True)
-    if id is None:
-        query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA ORDER BY id LIMIT 10;"
-        cursor.execute(query)
-    else:
-        query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA WHERE id > %s ORDER BY id LIMIT 10;"
-        cursor.execute(query, (id,))
-    registres = cursor.fetchall()
-    cursor.reset()
-    resultat = []
-    for registre in registres:
-        pelicula = Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0])
-        resultat.append(pelicula)
-    return resultat
+    def totes_pag(self, id=None) -> List[Pelicula]:
+         cursor = self._conn.cursor(buffered=True)
+         if id is None:
+            query_pag = f"SELECT ID , TITULO , ANYO , PUNTUACION , VOTOS FROM PELICULA LIMIT 10;"
 
-def desa(self, pelicula: Pelicula) -> Pelicula:
-    cursor = self._conn.cursor(buffered=True)
-    query = "INSERT INTO PELICULA (titulo, anyo, puntuacion, votos) VALUES (%s, %s, %s, %s);"
-    data = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots)
-    cursor.execute(query, data)
-    self._conn.commit()
-    pelicula.id = cursor.lastrowid
-    return pelicula
+         else:
+            query_pag = f"SELECT ID , TITULO , ANYO , PUNTUACION , VOTOS FROM PELICULA WHERE id > {id} ORDER BY id LIMIT 10;"
 
+         Cursor.execute(query_pag)
+         results = cursor.fetchall()
+         result_pag = []
+         for result in results:
+             pelicula = Pelicula(result[1],result[2],result[3],result[4],self,result[0])
+             result_pag.append(pelicula)
+             return result_pag
 
-def llegeix(self, any: int) -> Pelicula:
-    cursor = self._conn.cursor(buffered=True)
-    query = "SELECT id, titulo, anyo, puntuacion, votos FROM PELICULA WHERE anyo = %s;"
-    cursor.execute(query, (any,))
-    registre = cursor.fetchone()
-    if registre:
-        pelicula = Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0])
-        return pelicula
-    else:
-        return None
-
-def canvia(self, pelicula: Pelicula) -> Pelicula:
-    cursor = self._conn.cursor(buffered=True)
-    query = "UPDATE PELICULA SET titulo=%s, anyo=%s, puntuacion=%s, votos=%s WHERE id=%s;"
-    data = (pelicula.titol, pelicula.any, pelicula.puntuacio, pelicula.vots, pelicula.id)
-    cursor.execute(query, data)
-    self._conn.commit()
-    return pelicula
+    
+    def desa(self,pelicula:Pelicula) -> Pelicula:
+        cursor = self._conn.cursor(buffered=True)
+        insert_query = f"INSERT INTO PELICULA(TITULO, ANYO, PUNTUACION, VOTOS) VALUES ('{pelicula.titol}', {pelicula.any}, {pelicula.puntuacio}, {pelicula.vots});"
+        cursor.execute(insert_query)
+        self._conn.commit()
+        select_query = f"SELECT ID, TITULO, ANYO, PUNTUACION, VOTOS FROM PELICULA WHERE TITULO='{pelicula.titol}' AND ANYO={pelicula.any};"
+        cursor.execute(select_query)
+        registre = cursor.fetchone()
+        return Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0])
+    
+    def llegeix(self, any: int) -> List[Pelicula]:
+        cursor = self._conn.cursor(buffered=True)
+        select_query = f"SELECT ID, TITULO, ANYO, PUNTUACION, VOTOS FROM PELICULA WHERE ANYO={any};"
+        cursor.execute(select_query)
+        registres = cursor.fetchall()
+        cursor.reset()
+        resultat = []
+        for registre in registres:
+            pelicula = Pelicula(registre[1],registre[2],registre[3],registre[4],self,registre[0])
+            resultat.append(pelicula)
+        return resultat
+    
+    def canvia(self,pelicula:Pelicula) -> Pelicula:
+        cursor = self._conn.cursor(buffered=True)
+        update_query = (f"UPDATE PELICULA SET TITULO='{pelicula.titol}', "
+                        f"ANYO={pelicula.any}, "
+                        f"PUNTUACION={pelicula.puntuacio}, "
+                        f"VOTOS={pelicula.vots} "
+                        f"WHERE ID={pelicula.id}")
+        cursor.execute(update_query)
+        select_query = f"SELECT ID, TITULO, ANYO, PUNTUACION, VOTOS FROM PELICULA WHERE ID={pelicula.id};"
+        cursor.execute(select_query)
+        registre = cursor.fetchone()
+        return Pelicula(registre[1], registre[2], registre[3], registre[4], self, registre[0])
