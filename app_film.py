@@ -10,7 +10,7 @@ from persistencia_pelicula_mysql import Persistencia_pelicula_mysql
 from llistapelis import Llistapelis
 from typing import List
 
-# Connexió a la base de dades MySQL
+# Connexió a la base de dades 
 conn = mysql.connector.connect(
     host="localhost",
     user="dam_app",
@@ -23,14 +23,14 @@ THIS_PATH = os.path.dirname(os.path.abspath(__file__))
 RUTA_FITXER_CONFIGURACIO = os.path.join(THIS_PATH, 'configuracio.yml')
 print(RUTA_FITXER_CONFIGURACIO)
 
-# Funció per obtenir la configuració des d'un fitxer YAML
+# Funció per obtenir la configuració del nostre fitxer YML
 def get_configuracio(ruta_fitxer_configuracio) -> dict:
     config = {}
     with open(ruta_fitxer_configuracio, 'r') as conf:
         config = yaml.safe_load(conf)
     return config
 
-# Funció per obtenir les persistències de la base de dades segons la configuració
+# Funció per obtenir les persistències de la base de dades
 def get_persistencies(conf: dict) -> dict:
     credencials = {}
     if conf["base de dades"]["motor"].lower().strip() == "mysql":
@@ -46,7 +46,7 @@ def get_persistencies(conf: dict) -> dict:
             'pelicula': None
         }
 
-# Funció per mostrar text lentament
+# Mostrar el text d'inici amb un retard de 0,05 segons entre cada caracter
 def mostra_lent(missatge, v=0.05):
     for c in missatge:
         print(c, end='')
@@ -54,7 +54,7 @@ def mostra_lent(missatge, v=0.05):
         time.sleep(v)
     print()
 
-# Funció per mostrar el text de benvinguda
+# Mostrar el text de benvinguda
 def landing_text():
     os.system('clear')
     print("Benvingut a la app de pel·lícules")
@@ -64,17 +64,15 @@ def landing_text():
     input("Prem la tecla 'Enter' per a continuar")
     os.system('clear')
 
-# Funció per mostrar una llista de pel·lícules
+# Veure la llista de pel·lícules
 def mostra_llista(llistapelicula, start_index=0, end_index=None):
     os.system('clear')
-    # Si end_index es None, mostramos todas las películas a partir de start_index
     if end_index is None:
         end_index = len(llistapelicula.pelicules)
     for movie in llistapelicula.pelicules[start_index:end_index]:
         print(json.dumps(json.loads(movie.toJSON()), indent=4))
 
-    # Imprime también el valor de start_index después de mostrar la lista
-    print(f"DEBUG: start_index después de mostrar la lista: {start_index}")
+    #print(f"DEBUG: start_index después de mostrar la lista: {start_index}")
 
 def mostra_seguents(llistapelicula, start_index):
     end_index = start_index + 10
@@ -84,7 +82,7 @@ def mostra_seguents(llistapelicula, start_index):
     return start_index + 10  # Devuelve el nuevo índice de inicio
 
 
-# Funció del bucle principal de l'aplicació
+# Bucle principal de l'aplicació
 def bucle_principal(context):
     opcio = None
 
@@ -105,7 +103,7 @@ def bucle_principal(context):
             if 'llistapelis' in context:
                 print(f"DEBUG: start_index antes de mostrar: {context.get('start_index', 0)}")
                 context['start_index'] = mostra_seguents(context['llistapelis'], context.get('start_index', 0))
-                print(f"DEBUG: start_index después de mostrar y actualizar: {context.get('start_index', 0)}")
+                #print(f"DEBUG: start_index después de mostrar y actualizar: {context.get('start_index', 0)}")
                 mostra_menu_next10()
         elif context["opcio"] == '3':
             insereix_pelicula(context)
@@ -116,7 +114,7 @@ def bucle_principal(context):
         elif context["opcio"] == '5':
             selecciona_perany(context)
 
-# Funció per mostrar el menú principal
+# Menú principal
 def mostra_menu():
     print("0.- Surt de l'aplicació.")
     print("1.- Mostra les primeres 10 pel·lícules")
@@ -124,11 +122,11 @@ def mostra_menu():
     print("4.- Modificar pel·lícula existent ")
     print("5.- Seleccionar pel·lícules per any.")
 
-# Funció per mostrar el menú per a les següents 10 pel·lícules
+# Mostrar menú per a les següents 10 pel·lícules
 def mostra_menu_next10():
     print("2.- Mostra les següents 10 pel·lícules")
 
-# Funció per processar l'opció seleccionada
+
 def procesa_opcio(context):
     return {
         "0": lambda ctx: mostra_lent("Fins la propera"),
@@ -139,7 +137,7 @@ def procesa_opcio(context):
         "5": selecciona_perany
     }.get(context["opcio"], lambda ctx: mostra_lent("opció incorrecta!!!"))(context)
 
-# Funció per inserir una nova pel·lícula
+#Inserir una nova pel·lícula
 def insereix_pelicula(ctx):
     print("Has seleccionat inserir una nova pel·lícula. Insereix les dades:")
     ttl = input("Títol: ")
@@ -155,7 +153,7 @@ def insereix_pelicula(ctx):
     if existeix:
         print("Aquesta pel·lícula ja existeix")
     else:
-        # No proporcionamos valor para el campo ID ya que es autoincremental
+        # Fem l'insert en la base de dades
         query_insert = "INSERT INTO PELICULA (TITULO, ANYO, PUNTUACION, VOTOS) VALUES (%s, %s, %s, %s)"
         cursor.execute(query_insert, (ttl, anyo, puntuacio, votos))
         print("Pel·lícula inserida")
@@ -166,12 +164,11 @@ def modifica_pelicula(ctx):
     ttl = input("Títol exacte: ")
     np = float(input("Nova puntuació: "))
     nv = int(input("Nous vots: "))
-
+#Actualitzem les dades amb UPDATE
     query = "UPDATE PELICULA SET PUNTUACION = %s, VOTOS = %s WHERE TITULO = %s"
     cursor.execute(query, (np, nv, ttl))
     conn.commit()
 
-# Funció per seleccionar pel·lícules per any, puntuació o actors
 def selecciona_perany(ctx):
     print("Has seleccionat consultar la base de dades de pel·lícules.")
     opc = int(input("Vols consultar mitjançant un rang d'anys (1), per puntuació(2), o mitjançant els actors que hi participen (3)?  "))
@@ -218,7 +215,7 @@ def selecciona_perany(ctx):
         for row in rows:
             print(row)
 
-# Funció per llegir les dades de la base de dades
+
 def database_read(id_inicio: int = None):
     logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     config = get_configuracio(RUTA_FITXER_CONFIGURACIO)
